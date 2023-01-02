@@ -3,7 +3,7 @@ package be.technifutur.jcalendar;
 public class Person {
     private String nom;
     private String prenom;
-    private Club club;
+    private Club club = Club.TECHNIFUTUR;
     private double tarif;
 
     public Person(String nom, String prenom) {

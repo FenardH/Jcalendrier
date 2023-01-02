@@ -1,5 +1,6 @@
 package be.technifutur.jcalendar.month;
 
+import be.technifutur.jcalendar.TextColor;
 import be.technifutur.jcalendar.JcalendarModel;
 import be.technifutur.jcalendar.JcalendarView;
 
@@ -57,13 +58,11 @@ public class ViewMonth implements JcalendarView {
         String[] newWeek = new String[7];
         LocalDate td = LocalDate.now();
         String today = DateTimeFormatter.ofPattern("dd/MM/yyyy", Locale.FRANCE).format(td);
-        String ANSI_YELLOW = "\u001B[33m";
-        String ANSI_RESET = "\u001B[0m";
 
         for (int i = 0; i < week.length; i++) {
             if (week[i].equals(today)) {
-                days[i] = ANSI_YELLOW + days[i] + ANSI_RESET;
-                week[i] = ANSI_YELLOW + week[i] + ANSI_RESET;
+                days[i] = TextColor.yellow(days[i]);
+                week[i] = TextColor.yellow(week[i]);
             }
             newWeek[i] = week[i];
         }

@@ -14,43 +14,13 @@ import static java.util.stream.Collectors.toList;
 
 public class ViewDay {
     private static final String headerFormat = """
-                  +-------------+
-                  +   %s   +
-                  + %s  +
-            +-----+-------------+
+            +-------+
+            +   %s   +
+            + %s  +
+            +-------+---+
             """;
 
-    private static final String bodyFormat = """
-                |  6h | . . . . . . |
-                |  7h | . . . . . . |
-                |  8h | . . . . . . |
-                |  9h | . . . . . . |
-                | 10h | . . . . . . |
-                | 11h | . . . . . . |
-                | 12h | . . . . . . |
-                +-----+-------------+
-                | 13h | . . . . . . |
-                | 14h | . . . . . . |
-                | 15h | . . . . . . |
-                | 16h | . . . . . . |
-                | 17h | . . . . . . |
-                | 18h | . . . . . . |
-                | 19h | . . . . . . |
-                | 20h | . . . . . . |
-                | 21h | . . . . . . |
-                | 22h | . . . . . . |
-                | 23h | . . . . . . |
-                | 24h | . . . . . . |
-                +-----+-------------+
-                |  1h | . . . . . . |
-                |  2h | . . . . . . |
-                |  3h | . . . . . . |
-                |  4h | . . . . . . |
-                |  5h | . . . . . . |
-                +-----+-------------+
-                """
-//            .replaceAll("\\.","%s");
-    ;
+
 
     public static void main(String[] args) {
         LocalDate today = LocalDate.now();
@@ -65,8 +35,7 @@ public class ViewDay {
 
         System.out.println(String.format(headerFormat,
                 weekHightlighted[0], weekHightlighted[1], weekHightlighted[2], weekHightlighted[3], weekHightlighted[4], weekHightlighted[5], weekHightlighted[6],
-                weekHightlighted[7], weekHightlighted[8], weekHightlighted[9], weekHightlighted[10], weekHightlighted[11], weekHightlighted[12], weekHightlighted[13])
-                                         + bodyFormat);
+                weekHightlighted[7], weekHightlighted[8], weekHightlighted[9], weekHightlighted[10], weekHightlighted[11], weekHightlighted[12], weekHightlighted[13]));
 
 
     }
