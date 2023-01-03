@@ -1,26 +1,17 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
-  <component name="AutoImportSettings">
-    <option name="autoReloadType" value="SELECTIVE" />
-  </component>
   <component name="ChangeListManager">
     <list default="true" id="b46eaaae-bfa1-4ff2-9e96-029e6ce6ee0a" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/.idea/codeStyles/Project.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/codeStyles/codeStyleConfig.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/be/technifutur/jcalendar/ActivityType.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/be/technifutur/jcalendar/Cell.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/be/technifutur/jcalendar/JcalendarDateTime.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/be/technifutur/jcalendar/TextColor.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/be/technifutur/jcalendar/Activity.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/be/technifutur/jcalendar/Activity.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/be/technifutur/jcalendar/Club.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/be/technifutur/jcalendar/Club.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/be/technifutur/jcalendar/JcalendarDateTime.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/be/technifutur/jcalendar/Jcalendar.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/be/technifutur/jcalendar/JcalendarModel.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/be/technifutur/jcalendar/JcalendarModel.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/be/technifutur/jcalendar/Main.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/be/technifutur/jcalendar/Main.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/be/technifutur/jcalendar/Person.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/be/technifutur/jcalendar/Person.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/be/technifutur/jcalendar/day/ModelDay.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/be/technifutur/jcalendar/day/ModelDay.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/be/technifutur/jcalendar/JcalendarView.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/be/technifutur/jcalendar/JcalendarView.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/be/technifutur/jcalendar/day/ModelDay.java" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/src/be/technifutur/jcalendar/day/ViewDay.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/be/technifutur/jcalendar/day/ViewDay.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/be/technifutur/jcalendar/month/ModelMonth.java" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/src/be/technifutur/jcalendar/month/ViewMonth.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/be/technifutur/jcalendar/month/ViewMonth.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/be/technifutur/jcalendar/week/ModelWeek.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/be/technifutur/jcalendar/week/ModelWeek.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/be/technifutur/jcalendar/week/ModelWeek.java" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/src/be/technifutur/jcalendar/week/ViewWeek.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/be/technifutur/jcalendar/week/ViewWeek.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -28,16 +19,13 @@
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
     <option name="LAST_RESOLUTION" value="IGNORE" />
   </component>
-  <component name="CodeStyleSettingsInfer">
-    <option name="done" value="true" />
-  </component>
   <component name="FileTemplateManagerImpl">
     <option name="RECENT_TEMPLATES">
       <list>
         <option value="Interface" />
+        <option value="Enum" />
         <option value="Record" />
         <option value="Class" />
-        <option value="Enum" />
       </list>
     </option>
   </component>
@@ -46,9 +34,6 @@
   </component>
   <component name="MarkdownSettingsMigration">
     <option name="stateVersion" value="1" />
-  </component>
-  <component name="ProjectCodeStyleSettingsMigration">
-    <option name="version" value="2" />
   </component>
   <component name="ProjectId" id="2JDYEWdzSKvT59jytTKYP6w9vz7" />
   <component name="ProjectLevelVcsManager" settingsEditedManually="true" />
@@ -73,16 +58,9 @@
       <recent name="month" />
     </key>
   </component>
-  <component name="RunManager" selected="Application.JcalendarModel">
-    <configuration name="JcalendarDateTime" type="Application" factoryName="Application" temporary="true" nameIsGenerated="true">
-      <option name="MAIN_CLASS_NAME" value="be.technifutur.jcalendar.JcalendarDateTime" />
-      <module name="Jcalendrier" />
-      <method v="2">
-        <option name="Make" enabled="true" />
-      </method>
-    </configuration>
-    <configuration name="JcalendarModel (1)" type="Application" factoryName="Application" temporary="true" nameIsGenerated="true">
-      <option name="MAIN_CLASS_NAME" value="be.technifutur.jcalendar.JcalendarModel" />
+  <component name="RunManager" selected="Application.ViewWeek">
+    <configuration name="Jcalendar" type="Application" factoryName="Application" temporary="true" nameIsGenerated="true">
+      <option name="MAIN_CLASS_NAME" value="be.technifutur.jcalendar.Jcalendar" />
       <module name="Jcalendrier" />
       <extension name="coverage">
         <pattern>
@@ -94,8 +72,8 @@
         <option name="Make" enabled="true" />
       </method>
     </configuration>
-    <configuration name="JcalendarModel" type="Application" factoryName="Application" temporary="true" nameIsGenerated="true">
-      <option name="MAIN_CLASS_NAME" value="be.technifutur.jcalendar.JcalendarModel" />
+    <configuration name="ViewDay" type="Application" factoryName="Application" temporary="true" nameIsGenerated="true">
+      <option name="MAIN_CLASS_NAME" value="be.technifutur.jcalendar.day.ViewDay" />
       <module name="Jcalendrier" />
       <extension name="coverage">
         <pattern>
@@ -129,10 +107,9 @@
     </configuration>
     <recent_temporary>
       <list>
-        <item itemvalue="Application.JcalendarModel" />
-        <item itemvalue="Application.JcalendarDateTime" />
-        <item itemvalue="Application.JcalendarModel (1)" />
         <item itemvalue="Application.ViewWeek" />
+        <item itemvalue="Application.ViewDay" />
+        <item itemvalue="Application.JcalendarDateTime" />
         <item itemvalue="Application.ViewMonth" />
       </list>
     </recent_temporary>
@@ -148,29 +125,13 @@
     </task>
     <servers />
   </component>
-  <component name="Vcs.Log.Tabs.Properties">
-    <option name="TAB_STATES">
-      <map>
-        <entry key="MAIN">
-          <value>
-            <State />
-          </value>
-        </entry>
-      </map>
-    </option>
-  </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
       <breakpoints>
         <line-breakpoint enabled="true" type="java-line">
           <url>file://$PROJECT_DIR$/src/be/technifutur/jcalendar/day/ViewDay.java</url>
-          <line>36</line>
-          <option name="timeStamp" value="1" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" type="java-line">
-          <url>file://$PROJECT_DIR$/src/be/technifutur/jcalendar/day/ViewDay.java</url>
-          <line>37</line>
-          <option name="timeStamp" value="3" />
+          <line>17</line>
+          <option name="timeStamp" value="4" />
         </line-breakpoint>
       </breakpoints>
     </breakpoint-manager>

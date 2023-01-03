@@ -1,71 +1,44 @@
 package be.technifutur.jcalendar.day;
 
-import java.lang.reflect.Array;
-import java.time.DayOfWeek;
-import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
-import java.time.temporal.ChronoUnit;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Locale;
-import java.util.stream.Stream;
+import be.technifutur.jcalendar.*;
 
-import static java.util.stream.Collectors.toList;
+import java.util.SortedSet;
 
 public class ViewDay {
-    private static final String headerFormat = """
-            +-------+
-            +   %s   +
-            + %s  +
-            +-------+---+
+    private String headerFormat = """
+            +------------+
+            + %s +
+            +  %s +
+            +------------+
             """;
 
-
-
-    public static void main(String[] args) {
-        LocalDate today = LocalDate.now();
-        List<LocalDate> w = Arrays.asList(DayOfWeek.values()).stream()
-                                                             .map(today::with)
-                                                             .collect(toList());
-
-        String[] week = convertDateFormat(w);
-        String[] weekHightlighted = highlightToday(week);
-
-//        LocalDate d1 = today.minus(1, ChronoUnit.DAYS);
-
-        System.out.println(String.format(headerFormat,
-                weekHightlighted[0], weekHightlighted[1], weekHightlighted[2], weekHightlighted[3], weekHightlighted[4], weekHightlighted[5], weekHightlighted[6],
-                weekHightlighted[7], weekHightlighted[8], weekHightlighted[9], weekHightlighted[10], weekHightlighted[11], weekHightlighted[12], weekHightlighted[13]));
-
-
-    }
-
-    private static String[] highlightToday(String[] week) {
-        String[] newWeek = new String[7];
-        String[] days = {"-Lundi-", "-Mardi-", "-Mercredi-", "-Jeudi-", "-Vendredi-", "-Samedi-", "-Dimanche-"};
-        LocalDate td = LocalDate.now();
-        String today = DateTimeFormatter.ofPattern("dd/MM/yyyy", Locale.FRANCE).format(td);
-        String ANSI_YELLOW = "\u001B[33m";
-        String ANSI_RESET = "\u001B[0m";
-
-        for (int i = 0; i < week.length; i++) {
-            if (week[i].equals(today)) {
-                days[i] = ANSI_YELLOW + days[i] + ANSI_RESET;
-                week[i] = ANSI_YELLOW + week[i] + ANSI_RESET;
+    public void displayDaySchedule (JcalendarModel model) {
+        System.out.printf(headerFormat, model.getDate(), String.format("%" + (-9) + "s", model.getDay()));
+        System.out.println();
+        SortedSet<Activity> activitiesInTheDay = model.getActivitiesInTheDay();
+        if (activitiesInTheDay != null) {
+            for (int i = 0; i < activitiesInTheDay.size(); i ++) {
+                System.out.printf("[%s] %s\n", i + 1, model.getActivitiesInTheDay().toArray()[i]);
             }
-            newWeek[i] = week[i];
+        } else {
+            System.out.println("Aucun historique trouvé !");
         }
-
-        return Stream.concat(Arrays.stream(days), Arrays.stream(newWeek))
-                     .toArray(size -> (String[]) Array
-                     .newInstance(days.getClass().getComponentType(), size));
     }
 
-    private static String[] convertDateFormat(List<LocalDate> w) {
-        String[] convertedDate = new String[7];
-        for (int i = 0; i < w.size(); i++) {
-            convertedDate[i] = DateTimeFormatter.ofPattern("dd/MM/yyyy", Locale.FRANCE).format(w.get(i));
-        }
-        return convertedDate;
-    }
+//    public static void main(String[] args) {
+//        ModelDay.addRecord(new Activity(Jcalendar.stringToLocalDate("30/12/2022"), Jcalendar.stringToLocalTime("09:00"), Jcalendar.stringToLocalTime("10:00"), "Java Course", "Technifutur", ActivityType.SEANCE, true));
+//        ModelDay.addRecord(new Activity(Jcalendar.stringToLocalDate("30/12/2022"), Jcalendar.stringToLocalTime("10:30"), Jcalendar.stringToLocalTime("11:30"), "Java Course", "Technipaste", ActivityType.REPOS, true));
+//        ModelDay.addRecord(new Activity(Jcalendar.stringToLocalDate("31/12/2022"), Jcalendar.stringToLocalTime("09:00"), Jcalendar.stringToLocalTime("10:00"), "Java Course", "Technifutur", ActivityType.SEANCE, true));
+//        ModelDay.addRecord(new Activity(Jcalendar.stringToLocalDate("31/12/2022"), Jcalendar.stringToLocalTime("09:30"), Jcalendar.stringToLocalTime("10:30"), "JavaScript Course", "Technifutur", ActivityType.SEANCE, true));
+//        ModelDay.addRecord(new Activity(Jcalendar.stringToLocalDate("31/12/2022"), Jcalendar.stringToLocalTime("10:30"), Jcalendar.stringToLocalTime("11:30"), "Java Course", "Technipaste", ActivityType.REPOS, true));
+//        ModelDay.addRecord(new Activity(Jcalendar.stringToLocalDate("02/01/2023"), Jcalendar.stringToLocalTime("09:00"), Jcalendar.stringToLocalTime("10:00"), "Java Course", "Technifutur", ActivityType.SEANCE, true));
+//        ModelDay.addRecord(new Activity(Jcalendar.stringToLocalDate("03/01/2023"), Jcalendar.stringToLocalTime("10:30"), Jcalendar.stringToLocalTime("11:30"), "Java Course", "Technipaste", ActivityType.REPOS, true));
+//        ModelDay.addRecord(new Activity(Jcalendar.stringToLocalDate("02/01/2023"), Jcalendar.stringToLocalTime("14:00"), Jcalendar.stringToLocalTime("15:00"), "Java Course", "Technifutur", ActivityType.SEANCE, true));
+//        ModelDay.addRecord(new Activity(Jcalendar.stringToLocalDate("02/01/2023"), Jcalendar.stringToLocalTime("09:30"), Jcalendar.stringToLocalTime("10:30"), "JavaScript Course", "Technifutur", ActivityType.SEANCE, true));
+//        ModelDay.addRecord(new Activity(Jcalendar.stringToLocalDate("03/01/2023"), Jcalendar.stringToLocalTime("10:30"), Jcalendar.stringToLocalTime("11:30"), "Java Course", "Technipaste", ActivityType.REPOS, true));
+//
+//        ViewDay d = new ViewDay();
+//        ModelDay m = new ModelDay(Jcalendar.stringToLocalDate("04/01/2023"));
+//        d.displayDaySchedule(m);
+//    }
 }

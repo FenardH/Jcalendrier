@@ -1,8 +1,6 @@
 package be.technifutur.jcalendar.month;
 
 import be.technifutur.jcalendar.TextColor;
-import be.technifutur.jcalendar.JcalendarModel;
-import be.technifutur.jcalendar.JcalendarView;
 
 import java.lang.reflect.Array;
 import java.time.DayOfWeek;
@@ -15,7 +13,7 @@ import java.util.stream.Stream;
 
 import static java.util.stream.Collectors.toList;
 
-public class ViewMonth implements JcalendarView {
+public class ViewMonth{
     private static final String headFormat = """
             %s, %s
             +-------------+-------------+-------------+-------------+-------------+-------------+-------------+
@@ -78,20 +76,5 @@ public class ViewMonth implements JcalendarView {
             convertedDate[i] = DateTimeFormatter.ofPattern("dd/MM/yyyy", Locale.FRANCE).format(w.get(i));
         }
         return convertedDate;
-    }
-
-    @Override
-    public void printBlankCalendar() {
-
-    }
-
-    @Override
-    public void setMessage(String inputNonValid) {
-
-    }
-
-    @Override
-    public void printCalendar(JcalendarModel model) {
-
     }
 }
