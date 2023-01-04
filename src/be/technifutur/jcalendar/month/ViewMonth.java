@@ -71,7 +71,7 @@ public class ViewMonth{
                     tab[j/7*2][j%7] = "  " + contentDate + "  ";
                     activityNum = dayModel.getRecordsNumber(dateVal);
                     if (activityNum != 0) {
-                        contentInfo = String.format("%s activité(s)", activityNum > 9 ? " " + activityNum : activityNum);
+                        contentInfo = String.format("%s activité(s)", activityNum > 9 ? activityNum : " " + activityNum);
                         contentInfo = TextColor.yellow(contentInfo);
                         tab[j/7*2+1][j%7] = contentInfo;
                     }
