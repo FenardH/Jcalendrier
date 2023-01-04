@@ -38,7 +38,7 @@ public class ViewMonth{
         for (int l = 0; l < 7; l++) {
             weekDays[l] = Jcalendar.resizeString(weekDays[l], 9, "left");
         }
-        System.out.printf(headFormat, date.getMonth(), date.getYear(),
+        System.out.printf(headFormat, monthEnToFr(date.getMonth().toString()), date.getYear(),
                                       weekDays[0], weekDays[1], weekDays[2], weekDays[3], weekDays[4], weekDays[5], weekDays[6]);
 
         // body

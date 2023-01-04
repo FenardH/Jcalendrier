@@ -16,6 +16,8 @@ public class Jcalendar {
     public static final LocalDate today = LocalDate.now();
     public static final String todayInString = localDateToString(today);
     public static final String[] weekDays = {"Lundi", "Mardi", "Mercredi", "Jeudi", "Vendredi", "Samedi", "Dimanche"};
+    public static final String[] months = {"Janvier", "Février", "Mars", "Avril", "Mai", "Juin",
+                                           "Juillet", "Août", "Septembre", "Octobre", "Novembre", "Décembre"};
     public static List<LocalDate> wd = getWholeWeek(today);
     public static String[] currentWeekDays = convertDateFormatForOneWeek(wd);
 
@@ -131,7 +133,7 @@ public class Jcalendar {
         return weekDayEnToFr(dayEn);
     }
 
-    private static String weekDayEnToFr(String dayEn) throws JcalendarTimeConflictException {
+    public static String weekDayEnToFr(String dayEn) throws JcalendarTimeConflictException {
         return switch (dayEn) {
             case "MONDAY" -> weekDays[0];
             case "TUESDAY" -> weekDays[1];
@@ -141,6 +143,24 @@ public class Jcalendar {
             case "SATURDAY" -> weekDays[5];
             case "SUNDAY" -> weekDays[6];
             default -> throw new JcalendarTimeConflictException("Jour invalid !");
+        };
+    }
+
+    public static String monthEnToFr(String dayEn) throws JcalendarTimeConflictException {
+        return switch (dayEn) {
+            case "JANUARY" -> months[0];
+            case "FEBRUARY" -> months[1];
+            case "MARCH" -> months[2];
+            case "APRIL" -> months[3];
+            case "MAY" -> months[4];
+            case "JUNE" -> months[5];
+            case "JULY" -> months[6];
+            case "AUGUST" -> months[7];
+            case "SEPTEMBER" -> months[8];
+            case "OCTOBER" -> months[9];
+            case "NOVEMBER" -> months[10];
+            case "DECEMBER" -> months[11];
+            default -> throw new JcalendarTimeConflictException("Mois invalid !");
         };
     }
 
