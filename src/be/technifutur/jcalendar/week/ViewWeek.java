@@ -1,27 +1,22 @@
 package be.technifutur.jcalendar.week;
 
-import be.technifutur.jcalendar.Activity;
-import be.technifutur.jcalendar.Jcalendar;
-import be.technifutur.jcalendar.JcalendarModel;
-import be.technifutur.jcalendar.JcalendarTimeConflictException;
+import be.technifutur.jcalendar.*;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Locale;
 import java.util.SortedSet;
+import java.util.stream.Stream;
 
 public class ViewWeek {
-    private String headerFormat = """
+    private final String headerFormat = """
                       +----------------+----------------+----------------+----------------+----------------+----------------+----------------+
-                      +      Lundi     +     Mardi      +    Mercredi    +      Jeudi     +    Vendredi    +     Samedi     +    Dimanche    +
+                      +     .  +     .  +    .    +     .  +    .   +     .  +    .   +
                       +   .   +   .   +   .   +   .   +   .   +   .   +   .   +
                 +-----+----------------+----------------+----------------+----------------+----------------+----------------+----------------+
                 """.replaceAll("\\.","%s");
 
-    private String body = """
+    private final String bodyFormat = """
                 |  6h | . | . | . | . | . | . | . |
                 |  7h | . | . | . | . | . | . | . |
                 |  8h | . | . | . | . | . | . | . |
@@ -51,46 +46,74 @@ public class ViewWeek {
                 +-----+----------------+----------------+----------------+----------------+----------------+----------------+----------------+
                 """.replaceAll("\\.","%s");
 
-    public void displayWeekSchedule (JcalendarModel model, int plusMinusWeeks) throws JcalendarTimeConflictException {
-        String[] week;
-        if (plusMinusWeeks == 0) {
+    public void displayWeekSchedule (JcalendarModel model, int weeksToSubstractOrAdd) throws JcalendarTimeConflictException {
+        // head
+        String[] weekNoHL;
+        String[] weekHL;
+        if (weeksToSubstractOrAdd == 0) {
             LocalDate date = model.getDate();
             List<LocalDate> wd = Jcalendar.getWholeWeek(date);
-            String[] currentWeekDays = Jcalendar.convertDateFormatForOneWeek(wd);
-            week = Jcalendar.highlightToday(currentWeekDays);
+            weekNoHL = Jcalendar.convertDateFormatForOneWeek(wd);
+            weekHL = Jcalendar.highlightToday(weekNoHL);
+            for (int l = 0; l < 7; l++) {
+                weekHL[l] = Jcalendar.resizeString(weekHL[l], 9, "left");
+            }
+            System.out.printf(headerFormat, weekHL[0], weekHL[1], weekHL[2], weekHL[3], weekHL[4], weekHL[5], weekHL[6],
+                                            weekHL[7], weekHL[8], weekHL[9], weekHL[10], weekHL[11], weekHL[12], weekHL[13]);
+
         } else {
-            week = Jcalendar.getPastFutureWeeksDates(plusMinusWeeks);
+            String[] weekDays = Jcalendar.weekDays;
+            weekNoHL = Jcalendar.getPastFutureWeeksDates(weeksToSubstractOrAdd);
+            for (int l = 0; l < 7; l++) {
+                weekDays[l] = Jcalendar.resizeString(weekDays[l], 9, "left");
+            }
+            System.out.printf(headerFormat, weekDays[0], weekDays[1], weekDays[2], weekDays[3], weekDays[4], weekDays[5], weekDays[6],
+                                            weekNoHL[0], weekNoHL[1], weekNoHL[2], weekNoHL[3], weekNoHL[4], weekNoHL[5], weekNoHL[6]);
         }
 
-        System.out.printf(headerFormat, week[0], week[1], week[2], week[3], week[4], week[5], week[6]);
-
-        String[][] tab = new String[7][24];
+        // body
+        String[][] tab = new String[24][7];
         for (String[] row : tab) {
             Arrays.fill(row, "              ");
         }
-
         for (int i = 0; i < 7; i++) {
-            JcalendarModel day = new JcalendarModel(Jcalendar.stringToLocalDate(week[i]));
+            JcalendarModel day = new JcalendarModel(Jcalendar.stringToLocalDate(weekNoHL[i]));
             SortedSet<Activity> activities = day.getActivitiesInTheDay();
             if (activities != null) {
                 for (Activity activity : activities) {
-                    int indexX = i;
-                    int indexY = Jcalendar.getTimeIntervalIndex(activity.startTime());
+                    int indexX = Jcalendar.getTimeIntervalIndex(activity.startTime());
+                    int indexY = i;
                     String content = activity.activityTitle();
                     tab[indexX][indexY] = content.length() > 14 ? content.substring(0, 11) + "..." : String.format("%" + (-14) + "s", content);
                 }
             }
         }
 
-        String[] flatTab = tab.stream()
-                              .flatMap(list -> list.stream())
-                              .collect(Collectors.toList());
-        System.out.printf(body, flatTab);
+        String[] flatTab = Arrays.stream(tab)
+                                 .flatMap(Stream::of)
+                                 .toArray(String[]::new);
+        System.out.printf(bodyFormat, flatTab);
     }
 
     public static void main(String[] args) throws JcalendarTimeConflictException {
-            ViewWeek w = new ViewWeek();
+        JcalendarModel.addRecord(new Activity(Jcalendar.stringToLocalDate("30/12/2022"), Jcalendar.stringToLocalTime("09:00"), Jcalendar.stringToLocalTime("10:00"), "Java Course", "Technifutur", ActivityType.SEANCE, true));
+        JcalendarModel.addRecord(new Activity(Jcalendar.stringToLocalDate("30/12/2022"), Jcalendar.stringToLocalTime("10:30"), Jcalendar.stringToLocalTime("11:30"), "Java Course", "Technipaste", ActivityType.REPOS, true));
+        JcalendarModel.addRecord(new Activity(Jcalendar.stringToLocalDate("31/12/2022"), Jcalendar.stringToLocalTime("09:00"), Jcalendar.stringToLocalTime("10:00"), "Java Course", "Technifutur", ActivityType.SEANCE, true));
+        JcalendarModel.addRecord(new Activity(Jcalendar.stringToLocalDate("31/12/2022"), Jcalendar.stringToLocalTime("10:30"), Jcalendar.stringToLocalTime("10:30"), "JavaScript Course", "Technifutur", ActivityType.SEANCE, true));
+        JcalendarModel.addRecord(new Activity(Jcalendar.stringToLocalDate("31/12/2022"), Jcalendar.stringToLocalTime("11:30"), Jcalendar.stringToLocalTime("12:30"), "Java Course", "Technipaste", ActivityType.REPOS, true));
+        JcalendarModel.addRecord(new Activity(Jcalendar.stringToLocalDate("02/01/2023"), Jcalendar.stringToLocalTime("09:00"), Jcalendar.stringToLocalTime("10:00"), "Java Course", "Technifutur", ActivityType.SEANCE, true));
+        JcalendarModel.addRecord(new Activity(Jcalendar.stringToLocalDate("03/01/2023"), Jcalendar.stringToLocalTime("10:30"), Jcalendar.stringToLocalTime("11:30"), "Java Course", "Technipaste", ActivityType.REPOS, true));
+        JcalendarModel.addRecord(new Activity(Jcalendar.stringToLocalDate("02/01/2023"), Jcalendar.stringToLocalTime("14:00"), Jcalendar.stringToLocalTime("15:00"), "Java Course", "Technifutur", ActivityType.SEANCE, true));
+        JcalendarModel.addRecord(new Activity(Jcalendar.stringToLocalDate("02/01/2023"), Jcalendar.stringToLocalTime("10:30"), Jcalendar.stringToLocalTime("10:30"), "JavaScript Course", "Technifutur", ActivityType.SEANCE, true));
+        JcalendarModel.addRecord(new Activity(Jcalendar.stringToLocalDate("03/01/2023"), Jcalendar.stringToLocalTime("10:30"), Jcalendar.stringToLocalTime("11:30"), "Java Course", "Technipaste", ActivityType.REPOS, true));
+        JcalendarModel.addRecord(new Activity(Jcalendar.stringToLocalDate("04/01/2023"), Jcalendar.stringToLocalTime("09:00"), Jcalendar.stringToLocalTime("10:30"), "Java Course", "Technipaste", ActivityType.REPOS, true));
+        JcalendarModel.addRecord(new Activity(Jcalendar.stringToLocalDate("04/01/2023"), Jcalendar.stringToLocalTime("10:30"), Jcalendar.stringToLocalTime("12:00"), "Java Course", "Technifutur", ActivityType.SEANCE, true));
+        JcalendarModel.addRecord(new Activity(Jcalendar.stringToLocalDate("04/01/2023"), Jcalendar.stringToLocalTime("13:30"), Jcalendar.stringToLocalTime("14:30"), "JavaScript Course", "Technifutur", ActivityType.SEANCE, true));
+        JcalendarModel.addRecord(new Activity(Jcalendar.stringToLocalDate("04/01/2023"), Jcalendar.stringToLocalTime("15:30"), Jcalendar.stringToLocalTime("16:30"), "Java Course", "Technipaste", ActivityType.REPOS, true));
+        JcalendarModel.addRecord(new Activity(Jcalendar.stringToLocalDate("03/01/2023"), Jcalendar.stringToLocalTime("10:30"), Jcalendar.stringToLocalTime("11:30"), "Java Course", "Technipaste", ActivityType.REPOS, true));
 
-            w.displayWeekSchedule(new JcalendarModel(Jcalendar.stringToLocalDate("03/01/2023")), -2);
+        ViewWeek w = new ViewWeek();
+
+            w.displayWeekSchedule(new JcalendarModel(Jcalendar.stringToLocalDate("03/01/2023")), 0);
         }
 }

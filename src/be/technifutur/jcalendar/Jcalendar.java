@@ -1,10 +1,10 @@
 package be.technifutur.jcalendar;
 
-import java.lang.reflect.Array;
 import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
@@ -13,21 +13,59 @@ import java.util.stream.Stream;
 import static java.util.stream.Collectors.toList;
 
 public class Jcalendar {
-    static final LocalDate today = LocalDate.now();
-    static final String todayInString = localDateToString(today);
-    static final String[] weekDays = {"Lundi", "Mardi", "Mercredi", "Jeudi", "Vendredi", "Samedi", "Dimanche"};
-
-
-    static List<LocalDate> wd = getWholeWeek(today);
+    public static final LocalDate today = LocalDate.now();
+    public static final String todayInString = localDateToString(today);
+    public static final String[] weekDays = {"Lundi", "Mardi", "Mercredi", "Jeudi", "Vendredi", "Samedi", "Dimanche"};
+    public static List<LocalDate> wd = getWholeWeek(today);
     public static String[] currentWeekDays = convertDateFormatForOneWeek(wd);
-    public static String[] currentWeekDaysAndDatesHL = highlightToday(currentWeekDays);
-
-//        LocalDate d1 = today.minus(1, ChronoUnit.DAYS);
 
     public static List<LocalDate> getWholeWeek(LocalDate day) {
-        return Arrays.asList(DayOfWeek.values()).stream()
-                                                .map(day::with)
-                                                .collect(toList());
+        return Arrays.stream(DayOfWeek.values())
+                     .map(day::with)
+                     .collect(toList());
+    }
+
+    public static List<LocalDate> getWholeMonth(LocalDate day) {
+        List<LocalDate> monthDays = new ArrayList<>();
+
+        LocalDate date = day.withDayOfMonth(1);
+        LocalDate end = date.plusMonths(1);
+
+        while (date.isBefore(end)) {
+            monthDays.add(date);
+            date = date.plusDays(1);
+        }
+
+        return monthDays;
+    }
+
+    public static List<LocalDate> getWholeMonthExtended(List<LocalDate> monthDays) throws JcalendarException {
+        List<LocalDate> monthDaysExtended = new ArrayList<>(monthDays);
+
+        LocalDate firstDate = monthDaysExtended.get(0);
+        LocalDate lastDate = monthDaysExtended.get(monthDaysExtended.size() - 1);
+        LocalDate tempDate;
+
+        int daysBefore = getWeekDayIndex(firstDate);
+        int daysBehind = 6 - getWeekDayIndex(lastDate);
+
+        if (daysBefore != 0) {
+            tempDate = firstDate;
+            for (int i = 0; i < daysBefore; i++) {
+                tempDate = tempDate.minusDays(1);
+                monthDaysExtended.add(0, tempDate);
+            }
+        }
+
+        if (daysBehind != 0) {
+            tempDate = lastDate;
+            for (int j = 0; j < daysBehind; j++) {
+                tempDate = tempDate.plusDays(1);
+                monthDaysExtended.add(tempDate);
+            }
+        }
+
+        return monthDaysExtended;
     }
 
     public static String[] convertDateFormatForOneWeek(List<LocalDate> week) {
@@ -39,19 +77,15 @@ public class Jcalendar {
     }
 
     public static String[] highlightToday(String[] week) {
-        String[] newWeekDays = new String[week.length];
-
-        for (int i = 0; i < week.length; i++) {
-            if (week[i].equals(todayInString)) {
-                currentWeekDays[i] = TextColor.yellow(currentWeekDays[i]);
-                week[i] = TextColor.yellow(week[i]);
+        String[] days = Arrays.copyOf(weekDays, 7);
+        String[] newWeek = Arrays.copyOf(week, 7);
+        for (int i = 0; i < newWeek.length; i++) {
+            if (newWeek[i].equals(todayInString)) {
+                days[i] = TextColor.yellow(days[i]);
+                newWeek[i] = TextColor.yellow(newWeek[i]);
             }
-            newWeekDays[i] = week[i];
         }
-
-        return Stream.concat(Arrays.stream(currentWeekDays), Arrays.stream(newWeekDays))
-                .toArray(size -> (String[]) Array
-                        .newInstance(currentWeekDays.getClass().getComponentType(), size));
+        return Stream.concat(Arrays.stream(days), Arrays.stream(newWeek)).toArray(String[]::new);
     }
 
     public static String localTimeToString(LocalTime time) {
@@ -60,7 +94,7 @@ public class Jcalendar {
     }
 
     public static LocalTime stringToLocalTime(String time) {
-        int[] t = Arrays.stream(time.split(":")).mapToInt(num -> Integer.parseInt(num)).toArray();
+        int[] t = Arrays.stream(time.split(":")).mapToInt(Integer::parseInt).toArray();
         return LocalTime.of(t[0], t[1]);
     }
 
@@ -75,7 +109,7 @@ public class Jcalendar {
 
     public static String[] getPastFutureWeeksDates(int weekNbr) {
         if (weekNbr < 0) {
-            LocalDate dayInPrevousWeek = today.minusWeeks(0 - weekNbr);
+            LocalDate dayInPrevousWeek = today.minusWeeks(-weekNbr);
             List<LocalDate> prevousWeek = getWholeWeek(dayInPrevousWeek);
             return convertDateFormatForOneWeek(prevousWeek);
         } else if (weekNbr > 0) {
@@ -110,7 +144,7 @@ public class Jcalendar {
         };
     }
 
-    public int getWeekDayIndex(LocalDate date) throws JcalendarTimeConflictException {
+    public static int getWeekDayIndex(LocalDate date) throws JcalendarException {
         return switch (String.valueOf(date.getDayOfWeek())) {
             case "MONDAY" -> 0;
             case "TUESDAY" -> 1;
@@ -119,7 +153,7 @@ public class Jcalendar {
             case "FRIDAY" -> 4;
             case "SATURDAY" -> 5;
             case "SUNDAY" -> 6;
-            default -> throw new JcalendarTimeConflictException("Jour invalid !");
+            default -> throw new JcalendarException("Jour invalid !");
         };
     }
 
@@ -178,6 +212,25 @@ public class Jcalendar {
     }
 
     private static boolean isInTimeInterval(LocalTime aTime, int startHour, int endHour) {
-        return (aTime.isAfter(LocalTime.of(startHour, 0)) && aTime.isBefore(LocalTime.of(endHour, 59)));
+        return (aTime.isAfter(LocalTime.of(startHour - 1, 59)) && aTime.isBefore(LocalTime.of(endHour, 0)));
     }
+
+    public static String resizeString(String s, int len, String padding) {
+        if (padding.equalsIgnoreCase("left")) {
+            return String.format("%" + (-len) + "s", s);
+        } else if (padding.equalsIgnoreCase("right")) {
+            return String.format("%" + len + "s", s);
+        } else {
+            return null;
+        }
+    }
+//
+//    public static void main(String[] args) throws JcalendarException {
+//        List<LocalDate> m  = getWholeMonth(today.minusDays(1));
+//        List<LocalDate> mex = getWholeMonthExtended(m);
+//        System.out.println(m.size());
+//        System.out.println(m);
+//        System.out.println(mex.size());
+//        System.out.println(mex);
+//    }
 }

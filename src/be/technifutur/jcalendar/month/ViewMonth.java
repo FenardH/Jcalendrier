@@ -1,80 +1,119 @@
 package be.technifutur.jcalendar.month;
 
-import be.technifutur.jcalendar.TextColor;
+import be.technifutur.jcalendar.*;
 
-import java.lang.reflect.Array;
-import java.time.DayOfWeek;
 import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Locale;
 import java.util.stream.Stream;
 
-import static java.util.stream.Collectors.toList;
+import static be.technifutur.jcalendar.Jcalendar.*;
 
 public class ViewMonth{
     private static final String headFormat = """
             %s, %s
-            +-------------+-------------+-------------+-------------+-------------+-------------+-------------+
-            +   %s   +   %s   + %s  +   %s   + %s  +  %s   + %s  +
-            +-------------+-------------+-------------+-------------+-------------+-------------+-------------+
-            """;
-
-    private static final String bodyDayFormat = """
-            |       .     |       .     |       .     |       .     |       .     |       .     |       .     |
+            +----------------+----------------+----------------+----------------+----------------+----------------+----------------+
+            +     .  +     .  +    .   +     .  +    .   +     .  +    .   +
+            +----------------+----------------+----------------+----------------+----------------+----------------+----------------+
             """.replaceAll("\\.","%s");
 
-    private static final String bodyDayInfoFormat = """
+    private static final String bodyFormat = """
             | . | . | . | . | . | . | . |
-            +-------------+-------------+-------------+-------------+-------------+-------------+-------------+
+            | . | . | . | . | . | . | . |
+            +----------------+----------------+----------------+----------------+----------------+----------------+----------------+
             """.replaceAll("\\.","%s");
 
-    public static void main(String[] args) {
+    public void displayMonthSchedule (JcalendarModel model, int monthsToSubstractOrAdd) throws JcalendarException {
+        LocalDate date;
+        if (monthsToSubstractOrAdd > 0) {
+            date = model.getDate().plusMonths(monthsToSubstractOrAdd);
+        } else if (monthsToSubstractOrAdd < 0) {
+            date = model.getDate().minusMonths(-monthsToSubstractOrAdd);
+        } else {
+            date = model.getDate();
+        }
 
-        LocalDate today = LocalDate.now();
-        List<LocalDate> w = Arrays.asList(DayOfWeek.values()).stream()
-                .map(today::with)
-                .collect(toList());
+        // head
+        String[] weekDays = Jcalendar.weekDays;
+        for (int l = 0; l < 7; l++) {
+            weekDays[l] = Jcalendar.resizeString(weekDays[l], 9, "left");
+        }
+        System.out.printf(headFormat, date.getMonth(), date.getYear(),
+                                      weekDays[0], weekDays[1], weekDays[2], weekDays[3], weekDays[4], weekDays[5], weekDays[6]);
 
-        String[] week = convertDateFormat(w);
-        String[] weekHightlighted = highlightToday(week);
+        // body
+        List<LocalDate> monthDays = getWholeMonth(date);
+        List<LocalDate> monthDaysExtended = getWholeMonthExtended(monthDays);
 
-//        LocalDate d1 = today.minus(1, ChronoUnit.DAYS);
+        int rowNum = monthDaysExtended.size() / 7;
 
-        String blankSpaces = "           ";
+        String[][] tab = new String[rowNum * 2][7];
+        for (String[] row : tab) {
+            Arrays.fill(row, "              ");
+        }
 
-        System.out.println(String.format(headFormat,
-                "Decembre", "2022",
-                weekHightlighted[0], weekHightlighted[1], weekHightlighted[2], weekHightlighted[3], weekHightlighted[4], weekHightlighted[5], weekHightlighted[6]) +
-                String.format(bodyDayFormat, 1, 2, 3, 4, 5, 6, 7) +
-                String.format(bodyDayInfoFormat, blankSpaces, blankSpaces, blankSpaces, blankSpaces, blankSpaces, blankSpaces, blankSpaces));
-    }
+        StringBuilder body = new StringBuilder();
+        for (int i = 0; i < rowNum; i++) {
+            body.append(bodyFormat);
+        }
 
-    private static String[] highlightToday(String[] week) {
-        String[] days = {"-Lundi-", "-Mardi-", "-Mercredi-", "-Jeudi-", "-Vendredi-", "-Samedi-", "-Dimanche-"};
-        String[] newWeek = new String[7];
-        LocalDate td = LocalDate.now();
-        String today = DateTimeFormatter.ofPattern("dd/MM/yyyy", Locale.FRANCE).format(td);
+        LocalDate dateVal;
+        String contentDate;
+        String contentInfo;
+        int activityNum;
+        JcalendarModel dayModel;
+        for (int j = 0; j < monthDaysExtended.size(); j++) {
+            dateVal = monthDaysExtended.get(j);
+            if (monthDays.contains(dateVal)) {
+                dayModel = new JcalendarModel(dateVal);
+                if (dayModel.getDate().equals(today)) {
+                    contentDate = TextColor.yellow(localDateToString(dateVal));
+                    tab[j/7*2][j%7] = "  " + contentDate + "  ";
+                    activityNum = dayModel.getRecordsNumber(dateVal);
+                    if (activityNum != 0) {
+                        contentInfo = String.format("%s activité(s)", activityNum > 9 ? " " + activityNum : activityNum);
+                        contentInfo = TextColor.yellow(contentInfo);
+                        tab[j/7*2+1][j%7] = contentInfo;
+                    }
+                } else {
+                    contentDate = localDateToString(dateVal);
+                    tab[j/7*2][j%7] = "  " + contentDate + "  ";
+                    activityNum = dayModel.getRecordsNumber(dateVal);
+                    if (activityNum != 0) {
+                        contentInfo = String.format("%s activité(s)", activityNum > 9 ? activityNum : " " + activityNum);
+                        tab[j/7*2+1][j%7] = contentInfo;
+                    }
+                }
 
-        for (int i = 0; i < week.length; i++) {
-            if (week[i].equals(today)) {
-                days[i] = TextColor.yellow(days[i]);
-                week[i] = TextColor.yellow(week[i]);
+            } else {
+                contentDate = TextColor.white(localDateToString(dateVal));
+                tab[j/7*2][j%7] = "  " + contentDate + "  ";
             }
-            newWeek[i] = week[i];
         }
 
-        return Stream.concat(Arrays.stream(days), Arrays.stream(newWeek))
-                     .toArray(size -> (String[]) Array
-                     .newInstance(days.getClass().getComponentType(), size));
+        String[] flatTab = Arrays.stream(tab)
+                .flatMap(Stream::of)
+                .toArray(String[]::new);
+        System.out.printf(body.toString(), flatTab);
     }
+    public static void main(String[] args) throws JcalendarException {
+        JcalendarModel.addRecord(new Activity(Jcalendar.stringToLocalDate("30/12/2022"), Jcalendar.stringToLocalTime("09:00"), Jcalendar.stringToLocalTime("10:00"), "Java Course", "Technifutur", ActivityType.SEANCE, true));
+        JcalendarModel.addRecord(new Activity(Jcalendar.stringToLocalDate("30/12/2022"), Jcalendar.stringToLocalTime("10:30"), Jcalendar.stringToLocalTime("11:30"), "Java Course", "Technipaste", ActivityType.REPOS, true));
+        JcalendarModel.addRecord(new Activity(Jcalendar.stringToLocalDate("31/12/2022"), Jcalendar.stringToLocalTime("09:00"), Jcalendar.stringToLocalTime("10:00"), "Java Course", "Technifutur", ActivityType.SEANCE, true));
+        JcalendarModel.addRecord(new Activity(Jcalendar.stringToLocalDate("31/12/2022"), Jcalendar.stringToLocalTime("10:30"), Jcalendar.stringToLocalTime("10:30"), "JavaScript Course", "Technifutur", ActivityType.SEANCE, true));
+        JcalendarModel.addRecord(new Activity(Jcalendar.stringToLocalDate("31/12/2022"), Jcalendar.stringToLocalTime("11:30"), Jcalendar.stringToLocalTime("12:30"), "Java Course", "Technipaste", ActivityType.REPOS, true));
+        JcalendarModel.addRecord(new Activity(Jcalendar.stringToLocalDate("02/01/2023"), Jcalendar.stringToLocalTime("09:00"), Jcalendar.stringToLocalTime("10:00"), "Java Course", "Technifutur", ActivityType.SEANCE, true));
+        JcalendarModel.addRecord(new Activity(Jcalendar.stringToLocalDate("03/01/2023"), Jcalendar.stringToLocalTime("10:30"), Jcalendar.stringToLocalTime("11:30"), "Java Course", "Technipaste", ActivityType.REPOS, true));
+        JcalendarModel.addRecord(new Activity(Jcalendar.stringToLocalDate("02/01/2023"), Jcalendar.stringToLocalTime("14:00"), Jcalendar.stringToLocalTime("15:00"), "Java Course", "Technifutur", ActivityType.SEANCE, true));
+        JcalendarModel.addRecord(new Activity(Jcalendar.stringToLocalDate("02/01/2023"), Jcalendar.stringToLocalTime("10:30"), Jcalendar.stringToLocalTime("10:30"), "JavaScript Course", "Technifutur", ActivityType.SEANCE, true));
+        JcalendarModel.addRecord(new Activity(Jcalendar.stringToLocalDate("03/01/2023"), Jcalendar.stringToLocalTime("10:30"), Jcalendar.stringToLocalTime("11:30"), "Java Course", "Technipaste", ActivityType.REPOS, true));
+        JcalendarModel.addRecord(new Activity(Jcalendar.stringToLocalDate("04/01/2023"), Jcalendar.stringToLocalTime("09:00"), Jcalendar.stringToLocalTime("10:30"), "Java Course", "Technipaste", ActivityType.REPOS, true));
+        JcalendarModel.addRecord(new Activity(Jcalendar.stringToLocalDate("04/01/2023"), Jcalendar.stringToLocalTime("10:30"), Jcalendar.stringToLocalTime("12:00"), "Java Course", "Technifutur", ActivityType.SEANCE, true));
+        JcalendarModel.addRecord(new Activity(Jcalendar.stringToLocalDate("04/01/2023"), Jcalendar.stringToLocalTime("13:30"), Jcalendar.stringToLocalTime("14:30"), "JavaScript Course", "Technifutur", ActivityType.SEANCE, true));
+        JcalendarModel.addRecord(new Activity(Jcalendar.stringToLocalDate("04/01/2023"), Jcalendar.stringToLocalTime("15:30"), Jcalendar.stringToLocalTime("16:30"), "Java Course", "Technipaste", ActivityType.REPOS, true));
 
-    private static String[] convertDateFormat(List<LocalDate> w) {
-        String[] convertedDate = new String[7];
-        for (int i = 0; i < w.size(); i++) {
-            convertedDate[i] = DateTimeFormatter.ofPattern("dd/MM/yyyy", Locale.FRANCE).format(w.get(i));
-        }
-        return convertedDate;
+        ViewMonth m = new ViewMonth();
+
+            m.displayMonthSchedule(new JcalendarModel(Jcalendar.stringToLocalDate("03/01/2023")), 0);
     }
 }
