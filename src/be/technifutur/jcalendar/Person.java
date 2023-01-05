@@ -1,14 +1,24 @@
 package be.technifutur.jcalendar;
 
+import java.time.LocalDate;
+import java.time.LocalTime;
+import java.util.*;
+
 public class Person {
     private String nom;
     private String prenom;
     private Club club = Club.TECHNIFUTUR;
     private double tarif;
+    private Map<LocalDate, SortedSet<Activity>> activityList = new HashMap<>();
 
-    public Person(String nom, String prenom) {
+    public Person(String nom, String prenom, Club club, double tarif) {
         this.nom = nom;
         this.prenom = prenom;
+        this.club = club;
+        this.tarif = tarif;
+    }
+    public Person(String nom, String prenom) {
+        this(nom, prenom, Club.TECHNIFUTUR, 0);
     }
 
     public String getNom() {
@@ -43,6 +53,62 @@ public class Person {
         this.tarif = tarif;
     }
 
+    public Optional<SortedSet<Activity>> getActivity(LocalDate date) {
+        updateActivity();
+        return Optional.ofNullable(activityList.get(date));
+    }
+
+    public Map<LocalDate, SortedSet<Activity>> getAllActivity() {
+        updateActivity();
+        return activityList;
+    }
+
+    public void addActivity(Activity activity) throws JcalendarTimeConflictException {
+        if (isTimeConflict(activity.getDate(), activity.getStartTime())) {
+            throw new JcalendarTimeConflictException("Les horaires entrés sont conflictuel !");
+        } else {
+            activityList.computeIfAbsent(activity.getDate(), k -> new TreeSet<>()).add(activity);
+        }
+    }
+
+    public void deleteActivity(Activity activity) throws JcalendarNoRecordException {
+        updateActivity();
+        LocalDate date = activity.getDate();
+        if (activityList.containsKey(date)) {
+            SortedSet<Activity> recordsInOneDate = activityList.get(date);
+            recordsInOneDate.remove(activity);
+            if (recordsInOneDate.size() == 0) {
+                activityList.remove(date);
+            }
+        } else {
+            throw new JcalendarNoRecordException("Record n'existe pas !");
+        }
+    }
+
+    private void updateActivity() {
+        for (Map.Entry<LocalDate, SortedSet<Activity>> entry : activityList.entrySet()) {
+            LocalDate date = entry.getKey();
+            if (JcalendarModel.recordList.containsKey(date)) {
+                SortedSet<Activity> recordsInOneDate = entry.getValue();
+                activityList.get(date).removeIf(record -> !recordsInOneDate.contains(record));
+            } else {
+                activityList.remove(date);
+            }
+        }
+    }
+
+    private boolean isTimeConflict(LocalDate date, LocalTime strTime) {
+        if (activityList.containsKey(date)) {
+            SortedSet<Activity> recordsInOneDate = activityList.get(date);
+            for (Activity record : recordsInOneDate) {
+                if (strTime.isAfter(record.getStartTime()) && strTime.isBefore(record.getEndTime().minusMinutes(1))) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) {
@@ -73,11 +139,10 @@ public class Person {
 
     @Override
     public String toString() {
-        return "Personne{" +
-                "nom='" + nom + '\'' +
+        return  "nom='" + nom + '\'' +
                 ", prenom='" + prenom + '\'' +
                 ", club=" + club +
                 ", tarif=" + tarif +
-                '}';
+                "\nactivities:\n" + activityList;
     }
 }

@@ -1,13 +1,12 @@
 package be.technifutur.jcalendar.month;
 
 import be.technifutur.jcalendar.*;
+import static be.technifutur.jcalendar.Jcalendar.*;
 
 import java.time.LocalDate;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Stream;
-
-import static be.technifutur.jcalendar.Jcalendar.*;
 
 public class ViewMonth{
     private static final String headFormat = """
@@ -97,23 +96,29 @@ public class ViewMonth{
         System.out.printf(body.toString(), flatTab);
     }
     public static void main(String[] args) throws JcalendarException {
-        JcalendarModel.addRecord(new Activity(Jcalendar.stringToLocalDate("30/12/2022"), Jcalendar.stringToLocalTime("09:00"), Jcalendar.stringToLocalTime("10:00"), "Java Course", "Technifutur", ActivityType.SEANCE, true));
-        JcalendarModel.addRecord(new Activity(Jcalendar.stringToLocalDate("30/12/2022"), Jcalendar.stringToLocalTime("10:30"), Jcalendar.stringToLocalTime("11:30"), "Java Course", "Technipaste", ActivityType.REPOS, true));
-        JcalendarModel.addRecord(new Activity(Jcalendar.stringToLocalDate("31/12/2022"), Jcalendar.stringToLocalTime("09:00"), Jcalendar.stringToLocalTime("10:00"), "Java Course", "Technifutur", ActivityType.SEANCE, true));
-        JcalendarModel.addRecord(new Activity(Jcalendar.stringToLocalDate("31/12/2022"), Jcalendar.stringToLocalTime("10:30"), Jcalendar.stringToLocalTime("10:30"), "JavaScript Course", "Technifutur", ActivityType.SEANCE, true));
-        JcalendarModel.addRecord(new Activity(Jcalendar.stringToLocalDate("31/12/2022"), Jcalendar.stringToLocalTime("11:30"), Jcalendar.stringToLocalTime("12:30"), "Java Course", "Technipaste", ActivityType.REPOS, true));
-        JcalendarModel.addRecord(new Activity(Jcalendar.stringToLocalDate("02/01/2023"), Jcalendar.stringToLocalTime("09:00"), Jcalendar.stringToLocalTime("10:00"), "Java Course", "Technifutur", ActivityType.SEANCE, true));
-        JcalendarModel.addRecord(new Activity(Jcalendar.stringToLocalDate("03/01/2023"), Jcalendar.stringToLocalTime("10:30"), Jcalendar.stringToLocalTime("11:30"), "Java Course", "Technipaste", ActivityType.REPOS, true));
-        JcalendarModel.addRecord(new Activity(Jcalendar.stringToLocalDate("02/01/2023"), Jcalendar.stringToLocalTime("14:00"), Jcalendar.stringToLocalTime("15:00"), "Java Course", "Technifutur", ActivityType.SEANCE, true));
-        JcalendarModel.addRecord(new Activity(Jcalendar.stringToLocalDate("02/01/2023"), Jcalendar.stringToLocalTime("10:30"), Jcalendar.stringToLocalTime("10:30"), "JavaScript Course", "Technifutur", ActivityType.SEANCE, true));
-        JcalendarModel.addRecord(new Activity(Jcalendar.stringToLocalDate("03/01/2023"), Jcalendar.stringToLocalTime("10:30"), Jcalendar.stringToLocalTime("11:30"), "Java Course", "Technipaste", ActivityType.REPOS, true));
-        JcalendarModel.addRecord(new Activity(Jcalendar.stringToLocalDate("04/01/2023"), Jcalendar.stringToLocalTime("09:00"), Jcalendar.stringToLocalTime("10:30"), "Java Course", "Technipaste", ActivityType.REPOS, true));
-        JcalendarModel.addRecord(new Activity(Jcalendar.stringToLocalDate("04/01/2023"), Jcalendar.stringToLocalTime("10:30"), Jcalendar.stringToLocalTime("12:00"), "Java Course", "Technifutur", ActivityType.SEANCE, true));
-        JcalendarModel.addRecord(new Activity(Jcalendar.stringToLocalDate("04/01/2023"), Jcalendar.stringToLocalTime("13:30"), Jcalendar.stringToLocalTime("14:30"), "JavaScript Course", "Technifutur", ActivityType.SEANCE, true));
-        JcalendarModel.addRecord(new Activity(Jcalendar.stringToLocalDate("04/01/2023"), Jcalendar.stringToLocalTime("15:30"), Jcalendar.stringToLocalTime("16:30"), "Java Course", "Technipaste", ActivityType.REPOS, true));
+        JcalendarModel testModel = new JcalendarModel();
+
+        testModel.addRecord(new Activity(Jcalendar.stringToLocalDate("30/12/2022"), Jcalendar.stringToLocalTime("09:00"), Jcalendar.stringToLocalTime("10:00"), "Python Course", "Technifutur", ActivityType.SEANCE));
+        testModel.addRecord(new Activity(Jcalendar.stringToLocalDate("30/12/2022"), Jcalendar.stringToLocalTime("10:30"), Jcalendar.stringToLocalTime("11:30"), "Java Course", "Technipaste", ActivityType.REPOS));
+        testModel.addRecord(new Activity(Jcalendar.stringToLocalDate("31/12/2022"), Jcalendar.stringToLocalTime("09:00"), Jcalendar.stringToLocalTime("10:00"), "HTML Course", "Technifutur", ActivityType.SEANCE));
+        testModel.addRecord(new Activity(Jcalendar.stringToLocalDate("31/12/2022"), Jcalendar.stringToLocalTime("10:30"), Jcalendar.stringToLocalTime("11:30"), "JavaScript Course", "Technifutur", ActivityType.SEANCE));
+        testModel.addRecord(new Activity(Jcalendar.stringToLocalDate("31/12/2022"), Jcalendar.stringToLocalTime("11:30"), Jcalendar.stringToLocalTime("12:30"), "Python Course", "Technipaste", ActivityType.REPOS));
+        testModel.addRecord(new Activity(Jcalendar.stringToLocalDate("02/01/2023"), Jcalendar.stringToLocalTime("09:00"), Jcalendar.stringToLocalTime("10:00"), "Java Course", "Technifutur", ActivityType.SEANCE));
+        testModel.addRecord(new Activity(Jcalendar.stringToLocalDate("02/01/2023"), Jcalendar.stringToLocalTime("14:00"), Jcalendar.stringToLocalTime("15:00"), "Computer Science Course", "Technifutur", ActivityType.SEANCE));
+        testModel.addRecord(new Activity(Jcalendar.stringToLocalDate("02/01/2023"), Jcalendar.stringToLocalTime("10:30"), Jcalendar.stringToLocalTime("11:30"), "JavaScript Course", "Technifutur", ActivityType.SEANCE));
+        testModel.addRecord(new Activity(Jcalendar.stringToLocalDate("03/01/2023"), Jcalendar.stringToLocalTime("09:30"), Jcalendar.stringToLocalTime("11:30"), "Java Course", "Technipaste", ActivityType.REPOS));
+        testModel.addRecord(new Activity(Jcalendar.stringToLocalDate("03/01/2023"), Jcalendar.stringToLocalTime("13:30"), Jcalendar.stringToLocalTime("15:30"), "Python Course", "Technipaste", ActivityType.REPOS));
+        testModel.addRecord(new Activity(Jcalendar.stringToLocalDate("03/01/2023"), Jcalendar.stringToLocalTime("15:30"), Jcalendar.stringToLocalTime("17:30"), "C++ Course", "Technipaste", ActivityType.REPOS));
+        testModel.addRecord(new Activity(Jcalendar.stringToLocalDate("04/01/2023"), Jcalendar.stringToLocalTime("09:00"), Jcalendar.stringToLocalTime("10:30"), ".Net Course", "Technipaste", ActivityType.REPOS));
+        testModel.addRecord(new Activity(Jcalendar.stringToLocalDate("04/01/2023"), Jcalendar.stringToLocalTime("10:30"), Jcalendar.stringToLocalTime("12:00"), "TypeScript course", "Technipaste", ActivityType.REPOS));
+        testModel.addRecord(new Activity(Jcalendar.stringToLocalDate("04/01/2023"), Jcalendar.stringToLocalTime("13:30"), Jcalendar.stringToLocalTime("14:30"), "JavaScript Course", "Technifutur", ActivityType.SEANCE));
+        testModel.addRecord(new Activity(Jcalendar.stringToLocalDate("04/01/2023"), Jcalendar.stringToLocalTime("14:30"), Jcalendar.stringToLocalTime("15:30"), "Java Course", "Technipaste", ActivityType.REPOS));
+        testModel.addRecord(new Activity(Jcalendar.stringToLocalDate("05/01/2023"), Jcalendar.stringToLocalTime("09:00"), Jcalendar.stringToLocalTime("10:30"), ".Net Course", "Technipaste", ActivityType.REPOS));
+        testModel.addRecord(new Activity(Jcalendar.stringToLocalDate("05/01/2023"), Jcalendar.stringToLocalTime("11:30"), Jcalendar.stringToLocalTime("12:00"), "TypeScript course", "Technipaste", ActivityType.REPOS));
+        testModel.addRecord(new Activity(Jcalendar.stringToLocalDate("05/01/2023"), Jcalendar.stringToLocalTime("13:30"), Jcalendar.stringToLocalTime("14:30"), "JavaScript Course", "Technifutur", ActivityType.SEANCE));
+        testModel.addRecord(new Activity(Jcalendar.stringToLocalDate("05/01/2023"), Jcalendar.stringToLocalTime("16:00"), Jcalendar.stringToLocalTime("17:30"), "Java Course", "Technipaste", ActivityType.REPOS));
 
         ViewMonth m = new ViewMonth();
-
-            m.displayMonthSchedule(new JcalendarModel(Jcalendar.stringToLocalDate("03/01/2023")), 0);
+        m.displayMonthSchedule(testModel, 0);
     }
 }

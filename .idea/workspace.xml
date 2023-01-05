@@ -5,9 +5,22 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="b46eaaae-bfa1-4ff2-9e96-029e6ce6ee0a" name="Changes" comment="phase 2:&#10;Model&#10;ViewWeek&#10;ViewMonth">
+      <change afterPath="$PROJECT_DIR$/src/be/technifutur/jcalendar/Input.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/be/technifutur/jcalendar/JcalendarNoRecordException.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/be/technifutur/jcalendar/ScannerInput.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_Update_at_03-Jan-23_6_08_PM__Changes_.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_Update_at_03-Jan-23_6_08_PM__Changes_.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/be/technifutur/jcalendar/Activity.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/be/technifutur/jcalendar/Activity.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/be/technifutur/jcalendar/Cell.java" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/src/be/technifutur/jcalendar/Jcalendar.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/be/technifutur/jcalendar/Jcalendar.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/be/technifutur/jcalendar/JcalendarController.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/be/technifutur/jcalendar/JcalendarController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/be/technifutur/jcalendar/JcalendarModel.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/be/technifutur/jcalendar/JcalendarModel.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/be/technifutur/jcalendar/JcalendarView.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/be/technifutur/jcalendar/Main.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/be/technifutur/jcalendar/Main.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/be/technifutur/jcalendar/Person.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/be/technifutur/jcalendar/Person.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/be/technifutur/jcalendar/day/ViewDay.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/be/technifutur/jcalendar/day/ViewDay.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/be/technifutur/jcalendar/month/ViewMonth.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/be/technifutur/jcalendar/month/ViewMonth.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/be/technifutur/jcalendar/week/ViewWeek.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/be/technifutur/jcalendar/week/ViewWeek.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -22,8 +35,8 @@
       <list>
         <option value="Interface" />
         <option value="Record" />
-        <option value="Class" />
         <option value="Enum" />
+        <option value="Class" />
       </list>
     </option>
   </component>
@@ -55,11 +68,12 @@
       <recent name="C:\formation\Jcalendrier\src" />
     </key>
     <key name="CopyClassDialog.RECENTS_KEY">
+      <recent name="be.technifutur.jcalendar" />
       <recent name="day" />
       <recent name="month" />
     </key>
   </component>
-  <component name="RunManager" selected="Application.ViewMonth">
+  <component name="RunManager" selected="Application.Main">
     <configuration name="Jcalendar" type="Application" factoryName="Application" temporary="true" nameIsGenerated="true">
       <option name="MAIN_CLASS_NAME" value="be.technifutur.jcalendar.Jcalendar" />
       <module name="Jcalendrier" />
@@ -73,8 +87,8 @@
         <option name="Make" enabled="true" />
       </method>
     </configuration>
-    <configuration name="JcalendarModel" type="Application" factoryName="Application" temporary="true" nameIsGenerated="true">
-      <option name="MAIN_CLASS_NAME" value="be.technifutur.jcalendar.JcalendarModel" />
+    <configuration name="Main" type="Application" factoryName="Application" temporary="true" nameIsGenerated="true">
+      <option name="MAIN_CLASS_NAME" value="be.technifutur.jcalendar.Main" />
       <module name="Jcalendrier" />
       <extension name="coverage">
         <pattern>
@@ -121,11 +135,11 @@
     </configuration>
     <recent_temporary>
       <list>
+        <item itemvalue="Application.Main" />
         <item itemvalue="Application.ViewMonth" />
+        <item itemvalue="Application.ViewDay" />
         <item itemvalue="Application.ViewWeek" />
         <item itemvalue="Application.Jcalendar" />
-        <item itemvalue="Application.JcalendarModel" />
-        <item itemvalue="Application.ViewDay" />
       </list>
     </recent_temporary>
   </component>
@@ -175,18 +189,31 @@
       <breakpoints>
         <line-breakpoint enabled="true" type="java-line">
           <url>file://$PROJECT_DIR$/src/be/technifutur/jcalendar/day/ViewDay.java</url>
-          <line>20</line>
+          <line>23</line>
           <option name="timeStamp" value="1" />
         </line-breakpoint>
         <line-breakpoint enabled="true" type="java-line">
           <url>file://$PROJECT_DIR$/src/be/technifutur/jcalendar/day/ViewDay.java</url>
-          <line>21</line>
+          <line>24</line>
           <option name="timeStamp" value="3" />
         </line-breakpoint>
         <line-breakpoint enabled="true" type="java-line">
           <url>file://$PROJECT_DIR$/src/be/technifutur/jcalendar/week/ViewWeek.java</url>
-          <line>84</line>
-          <option name="timeStamp" value="5" />
+          <line>93</line>
+          <option name="timeStamp" value="9" />
+        </line-breakpoint>
+        <breakpoint enabled="true" type="java-exception">
+          <properties class="java.lang.NullPointerException" package="java.lang" />
+          <option name="timeStamp" value="8" />
+        </breakpoint>
+        <line-breakpoint enabled="true" type="java-method">
+          <url>file://$PROJECT_DIR$/src/be/technifutur/jcalendar/Main.java</url>
+          <line>10</line>
+          <properties class="be.technifutur.jcalendar.Main" method="main">
+            <option name="EMULATED" value="true" />
+            <option name="WATCH_EXIT" value="false" />
+          </properties>
+          <option name="timeStamp" value="10" />
         </line-breakpoint>
       </breakpoints>
     </breakpoint-manager>

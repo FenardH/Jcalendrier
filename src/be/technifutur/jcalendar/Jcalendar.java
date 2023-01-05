@@ -244,6 +244,7 @@ public class Jcalendar {
             return null;
         }
     }
+
 //
 //    public static void main(String[] args) throws JcalendarException {
 //        List<LocalDate> m  = getWholeMonth(today.minusDays(1));

@@ -4,16 +4,20 @@ import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.*;
 
+import static be.technifutur.jcalendar.Jcalendar.today;
+
 public class JcalendarModel {
     private LocalDate date;
     private String day;
     static Map<LocalDate, SortedSet<Activity>> recordList = new HashMap<>();
-    private SortedSet<Activity> activitiesInTheDay;
 
     public JcalendarModel(LocalDate date) throws JcalendarTimeConflictException {
         this.date = date;
         this.day = Jcalendar.getDayFromDate(date);
-        this.activitiesInTheDay = getRecord(date).orElse(null);
+    }
+
+    public JcalendarModel() throws JcalendarTimeConflictException {
+        this(today);
     }
 
     public LocalDate getDate() {
@@ -32,19 +36,15 @@ public class JcalendarModel {
         this.day = day;
     }
 
-    public SortedSet<Activity> getActivitiesInTheDay() {
-        return activitiesInTheDay;
-    }
-
-    public static void addRecord(Activity activity) throws JcalendarTimeConflictException {
-        if (isTimeConflict(activity.date(), activity.startTime())) {
+    public void addRecord(Activity activity) throws JcalendarTimeConflictException {
+        if (isTimeConflict(activity.getDate(), activity.getStartTime())) {
             throw new JcalendarTimeConflictException("Les horaires entrés sont conflictuel !");
         } else {
-            recordList.computeIfAbsent(activity.date(), k -> new TreeSet<>()).add(activity);
+            recordList.computeIfAbsent(activity.getDate(), k -> new TreeSet<>()).add(activity);
         }
     }
 
-    public Optional<SortedSet<Activity>> getRecord(LocalDate date) {
+    public static Optional<SortedSet<Activity>> getRecord(LocalDate date) {
         return Optional.ofNullable(recordList.get(date));
     }
 
@@ -53,12 +53,12 @@ public class JcalendarModel {
         for (Map.Entry<LocalDate, SortedSet<Activity>> entry : recordList.entrySet()) {
             SortedSet<Activity> recordsInOneDate = entry.getValue();
             for (Activity record : recordsInOneDate) {
-                if (record.location().equals(location)) {
+                if (record.getLocation().equals(location)) {
                     result.add(record);
                 }
             }
         }
-        return Optional.of(result);
+        return Optional.ofNullable(result);
     }
 
     public Optional<SortedSet<Activity>> getRecord(ActivityType type) {
@@ -66,22 +66,28 @@ public class JcalendarModel {
         for (Map.Entry<LocalDate, SortedSet<Activity>> entry : recordList.entrySet()) {
             SortedSet<Activity> recordsInOneDate = entry.getValue();
             for (Activity record : recordsInOneDate) {
-                if (record.type().equals(type)) {
+                if (record.getType().equals(type)) {
                     result.add(record);
                 }
             }
         }
-        return Optional.of(result);
+        return Optional.ofNullable(result);
     }
 
-    public void deleteRecord(Activity activity) {
-        for (Map.Entry<LocalDate, SortedSet<Activity>> entry : recordList.entrySet()) {
-            SortedSet<Activity> recordsInOneDate = entry.getValue();
-            for (Activity record : recordsInOneDate) {
-                if (record.equals(activity)) {
-                    recordsInOneDate.remove(activity);
-                }
+    public Optional<SortedSet<Activity>> getActivitiesInTheDay() {
+        return getRecord(this.date);
+    }
+
+    public void deleteRecord(Activity activity) throws JcalendarNoRecordException {
+        LocalDate date = activity.getDate();
+        if (recordList.containsKey(date)) {
+            SortedSet<Activity> recordsInOneDate = recordList.get(date);
+            recordsInOneDate.remove(activity);
+            if (recordsInOneDate.size() == 0) {
+                recordList.remove(date);
             }
+        } else {
+            throw new JcalendarNoRecordException("Record n'existe pas !");
         }
     }
 
@@ -98,18 +104,26 @@ public class JcalendarModel {
         return recordList;
     }
 
-    public static boolean isTimeConflict(LocalDate date, LocalTime strTime) {
+    private boolean isTimeConflict(LocalDate date, LocalTime strTime) {
         if (recordList.containsKey(date)) {
-            for (Map.Entry<LocalDate, SortedSet<Activity>> entry : recordList.entrySet()) {
-                SortedSet<Activity> recordsInOneDate = entry.getValue();
-                for (Activity record : recordsInOneDate) {
-                    if (strTime.isAfter(record.startTime()) && strTime.isBefore(record.endTime().minusMinutes(1))) {
-                        return true;
-                    }
+            SortedSet<Activity> recordsInOneDate = recordList.get(date);
+            for (Activity record : recordsInOneDate) {
+                if (strTime.isAfter(record.getStartTime()) && strTime.isBefore(record.getEndTime().minusMinutes(1))) {
+                    return true;
                 }
             }
         }
         return false;
+    }
+
+    public void minusOrPlusDays(int dayNbr) throws JcalendarTimeConflictException {
+        if (dayNbr < 0) {
+            date = date.minusDays(-dayNbr);
+            day = Jcalendar.getDayFromDate(date);
+        } else if (dayNbr > 0) {
+            date = date.plusDays(dayNbr);
+            day = Jcalendar.getDayFromDate(date);
+        }
     }
 
         /*public static void main(String[] args) throws JcalendarTimeConflictException {

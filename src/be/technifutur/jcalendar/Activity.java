@@ -1,20 +1,80 @@
 package be.technifutur.jcalendar;
 
-import java.sql.Date;
-import java.sql.Time;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.time.LocalTime;
 
-public record Activity(LocalDate date, LocalTime startTime, LocalTime endTime, String activityTitle, String location, ActivityType type, boolean isPresent) implements Comparable<Activity>{
+public class Activity implements Comparable<Activity>{
+    LocalDate date;
+    LocalTime startTime;
+    LocalTime endTime;
+    String activityTitle;
+    String location;
+    ActivityType type;
+
+    public Activity(LocalDate date, LocalTime startTime, LocalTime endTime, String activityTitle, String location, ActivityType type) {
+        this.date = date;
+        this.startTime = startTime;
+        this.endTime = endTime;
+        this.activityTitle = activityTitle;
+        this.location = location;
+        this.type = type;
+    }
+
+    public LocalDate getDate() {
+        return date;
+    }
+
+    public void setDate(LocalDate date) {
+        this.date = date;
+    }
+
+    public LocalTime getStartTime() {
+        return startTime;
+    }
+
+    public void setStartTime(LocalTime startTime) {
+        this.startTime = startTime;
+    }
+
+    public LocalTime getEndTime() {
+        return endTime;
+    }
+
+    public void setEndTime(LocalTime endTime) {
+        this.endTime = endTime;
+    }
+
+    public String getActivityTitle() {
+        return activityTitle;
+    }
+
+    public void setActivityTitle(String activityTitle) {
+        this.activityTitle = activityTitle;
+    }
+
+    public String getLocation() {
+        return location;
+    }
+
+    public void setLocation(String location) {
+        this.location = location;
+    }
+
+    public ActivityType getType() {
+        return type;
+    }
+
+    public void setType(ActivityType type) {
+        this.type = type;
+    }
+
     @Override
     public String toString() {
         return startTime.toString() + "-" +
                endTime.toString() + " " +
                date.toString() + ", " +
                "Activité: " + activityTitle + ", " +
-               "Local: " + location + ", " +
-               "Présence: " + ((isPresent) ? "Oui" : "Non") + "\n";
+               "Local: " + location + "\n";
     }
 
     public int compareTo(Activity a2) {
