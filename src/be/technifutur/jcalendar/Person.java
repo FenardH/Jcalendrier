@@ -11,14 +11,14 @@ public class Person {
     private double tarif;
     private Map<LocalDate, SortedSet<Activity>> activityList = new HashMap<>();
 
-    public Person(String nom, String prenom, Club club, double tarif) {
-        this.nom = nom;
+    public Person(String prenom, String nom, Club club, double tarif) {
         this.prenom = prenom;
+        this.nom = nom;
         this.club = club;
         this.tarif = tarif;
     }
-    public Person(String nom, String prenom) {
-        this(nom, prenom, Club.TECHNIFUTUR, 0);
+    public Person(String prenom, String nom) {
+        this(prenom, nom, Club.TECHNIFUTUR, 0);
     }
 
     public String getNom() {
@@ -29,9 +29,7 @@ public class Person {
         this.nom = nom;
     }
 
-    public String getPrenom() {
-        return prenom;
-    }
+    public String getPrenom() {return prenom;}
 
     public void setPrenom(String prenom) {
         this.prenom = prenom;
@@ -58,7 +56,7 @@ public class Person {
         return Optional.ofNullable(activityList.get(date));
     }
 
-    public Map<LocalDate, SortedSet<Activity>> getAllActivity() {
+    public Map<LocalDate, SortedSet<Activity>> getAllActivities() {
         updateActivity();
         return activityList;
     }
@@ -71,17 +69,34 @@ public class Person {
         }
     }
 
-    public void deleteActivity(Activity activity) throws JcalendarNoRecordException {
+    public void deleteActivity(String d, String st, String et, String activityTitle, String location, String ate) throws JcalendarNoRecordException {
         updateActivity();
-        LocalDate date = activity.getDate();
+        LocalDate date = Jcalendar.stringToLocalDate(d);
+        LocalTime startTime = Jcalendar.stringToLocalTime(st);
+        LocalTime endTime = Jcalendar.stringToLocalTime(et);
+        ActivityType activityType = ActivityType.valueOf(ate.toUpperCase());
         if (activityList.containsKey(date)) {
             SortedSet<Activity> recordsInOneDate = activityList.get(date);
-            recordsInOneDate.remove(activity);
-            if (recordsInOneDate.size() == 0) {
-                activityList.remove(date);
+            Activity activityToDelete = null;
+            for (Activity activity : recordsInOneDate) {
+                if (activity.startTime.equals(startTime) &&
+                    activity.endTime.equals(endTime) &&
+                    activity.activityTitle.equals(activityTitle) &&
+                    activity.location.equals(location) &&
+                    activity.type.equals(activityType)) {
+                    activityToDelete = activity;
+                }
+            }
+            if (activityToDelete != null) {
+                recordsInOneDate.remove(activityToDelete);
+                if (recordsInOneDate.size() == 0) {
+                    activityList.remove(date);
+                }
+            }else {
+                throw new JcalendarNoRecordException("\n1Record n'existe pas !\n");
             }
         } else {
-            throw new JcalendarNoRecordException("Record n'existe pas !");
+            throw new JcalendarNoRecordException("\nRecord n'existe pas !\n");
         }
     }
 
@@ -90,10 +105,23 @@ public class Person {
             LocalDate date = entry.getKey();
             if (JcalendarModel.recordList.containsKey(date)) {
                 SortedSet<Activity> recordsInOneDate = entry.getValue();
-                activityList.get(date).removeIf(record -> !recordsInOneDate.contains(record));
+                for (Activity activity : recordsInOneDate) {
+                    if (!JcalendarModel.recordList.get(date).contains(activity)) {
+                        activityList.get(date).remove(activity);
+                    }
+                }
             } else {
                 activityList.remove(date);
             }
+        }
+    }
+
+    public int getRecordsNumber(LocalDate date) throws JcalendarNoRecordException {
+        updateActivity();
+        if (activityList.containsKey(date)) {
+            return activityList.get(date).size();
+        } else {
+            return 0;
         }
     }
 

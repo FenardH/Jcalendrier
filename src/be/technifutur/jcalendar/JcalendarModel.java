@@ -44,7 +44,7 @@ public class JcalendarModel {
         }
     }
 
-    public static Optional<SortedSet<Activity>> getRecord(LocalDate date) {
+    public Optional<SortedSet<Activity>> getRecord(LocalDate date) {
         return Optional.ofNullable(recordList.get(date));
     }
 
@@ -78,16 +78,33 @@ public class JcalendarModel {
         return getRecord(this.date);
     }
 
-    public void deleteRecord(Activity activity) throws JcalendarNoRecordException {
-        LocalDate date = activity.getDate();
+    public void deleteRecord(String d, String st, String et, String activityTitle, String location, String ate) throws JcalendarNoRecordException {
+        LocalDate date = Jcalendar.stringToLocalDate(d);
+        LocalTime startTime = Jcalendar.stringToLocalTime(st);
+        LocalTime endTime = Jcalendar.stringToLocalTime(et);
+        ActivityType activityType = ActivityType.valueOf(ate.toUpperCase());
         if (recordList.containsKey(date)) {
             SortedSet<Activity> recordsInOneDate = recordList.get(date);
-            recordsInOneDate.remove(activity);
-            if (recordsInOneDate.size() == 0) {
-                recordList.remove(date);
+            Activity activityToDelete = null;
+            for (Activity activity : recordsInOneDate) {
+                if (activity.startTime.equals(startTime) &&
+                    activity.endTime.equals(endTime) &&
+                    activity.activityTitle.equals(activityTitle) &&
+                    activity.location.equals(location) &&
+                    activity.type.equals(activityType)) {
+                    activityToDelete = activity;
+                }
+            }
+            if (activityToDelete != null) {
+                recordsInOneDate.remove(activityToDelete);
+                if (recordsInOneDate.size() == 0) {
+                    recordList.remove(date);
+                }
+            }else {
+                throw new JcalendarNoRecordException("\n1Record n'existe pas !\n");
             }
         } else {
-            throw new JcalendarNoRecordException("Record n'existe pas !");
+            throw new JcalendarNoRecordException("\nRecord n'existe pas !\n");
         }
     }
 
@@ -116,14 +133,34 @@ public class JcalendarModel {
         return false;
     }
 
-    public void minusOrPlusDays(int dayNbr) throws JcalendarTimeConflictException {
-        if (dayNbr < 0) {
-            date = date.minusDays(-dayNbr);
-            day = Jcalendar.getDayFromDate(date);
-        } else if (dayNbr > 0) {
-            date = date.plusDays(dayNbr);
-            day = Jcalendar.getDayFromDate(date);
+    public LocalDate minusOrPlusDays(int days) {
+        LocalDate date = LocalDate.from(today);
+        if (days > 0) {
+            date = date.plusDays(days);
+        } else if (days < 0) {
+            date = date.minusDays(-days);
         }
+        return date;
+    }
+
+    public LocalDate minusOrPlusWeeks(int weeks) {
+        LocalDate date = LocalDate.from(today);
+        if (weeks > 0) {
+            date = date.plusWeeks(weeks);
+        } else if (weeks < 0) {
+            date = date.minusWeeks(-weeks);
+        }
+        return date;
+    }
+
+    public LocalDate minusOrPlusMonths(int months) {
+        LocalDate date = LocalDate.from(today);
+        if (months > 0) {
+            date = date.plusMonths(months);
+        } else if (months < 0) {
+            date = date.minusMonths(-months);
+        }
+        return date;
     }
 
         /*public static void main(String[] args) throws JcalendarTimeConflictException {

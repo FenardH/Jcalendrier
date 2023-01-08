@@ -17,6 +17,7 @@ import java.util.stream.Stream;
 
 public class ViewWeek {
     private final String headerFormat = """
+                Utilisateur: %s
                       +----------------+----------------+----------------+----------------+----------------+----------------+----------------+
                       +     .  +     .  +    .   +     .  +    .   +     .  +    .   +
                       +   .   +   .   +   .   +   .   +   .   +   .   +   .   +
@@ -67,20 +68,22 @@ public class ViewWeek {
                 Matcher matcher = pattern.matcher(weekHL[l+7]);
                 boolean matchFound = matcher.find();
                 if (l == getWeekDayIndex(today) && matchFound) {
-                    weekHL[l] = Jcalendar.resizeString(weekHL[l], 18, "left");
+                    weekHL[l] = Text.resizeString(weekHL[l], 18, "left");
                 } else {
-                    weekHL[l] = Jcalendar.resizeString(weekHL[l], 9, "left");
+                    weekHL[l] = Text.resizeString(weekHL[l], 9, "left");
                 }
             }
-            System.out.printf(headerFormat, weekHL[0], weekHL[1], weekHL[2], weekHL[3], weekHL[4], weekHL[5], weekHL[6],
+            System.out.printf(headerFormat, "admin",
+                                            weekHL[0], weekHL[1], weekHL[2], weekHL[3], weekHL[4], weekHL[5], weekHL[6],
                                             weekHL[7], weekHL[8], weekHL[9], weekHL[10], weekHL[11], weekHL[12], weekHL[13]);
         } else {
             String[] weekDays = Jcalendar.weekDays;
             weekNoHL = Jcalendar.getPastFutureWeeksDates(weeksToSubstractOrAdd);
             for (int l = 0; l < 7; l++) {
-                weekDays[l] = Jcalendar.resizeString(weekDays[l], 9, "left");
+                weekDays[l] = Text.resizeString(weekDays[l], 9, "left");
             }
-            System.out.printf(headerFormat, weekDays[0], weekDays[1], weekDays[2], weekDays[3], weekDays[4], weekDays[5], weekDays[6],
+            System.out.printf(headerFormat, "admin",
+                                            weekDays[0], weekDays[1], weekDays[2], weekDays[3], weekDays[4], weekDays[5], weekDays[6],
                                             weekNoHL[0], weekNoHL[1], weekNoHL[2], weekNoHL[3], weekNoHL[4], weekNoHL[5], weekNoHL[6]);
         }
 
@@ -100,13 +103,65 @@ public class ViewWeek {
                 }
             }
         }
-
         String[] flatTab = Arrays.stream(tab)
                                  .flatMap(Stream::of)
                                  .toArray(String[]::new);
         System.out.printf(bodyFormat, flatTab);
     }
 
+    public void displayWeekSchedule (Person person, int weeksToSubstractOrAdd) throws JcalendarException {
+        // head
+        String[] weekNoHL;
+        String[] weekHL;
+        if (weeksToSubstractOrAdd == 0) {
+            LocalDate date = LocalDate.from(today);
+            List<LocalDate> wd = Jcalendar.getWholeWeek(date);
+            weekNoHL = Jcalendar.convertDateFormatForOneWeek(wd);
+            weekHL = Jcalendar.highlightToday(weekNoHL);
+            for (int l = 0; l < 7; l++) {
+                Pattern pattern = Pattern.compile("\u001B\\[0m");
+                Matcher matcher = pattern.matcher(weekHL[l+7]);
+                boolean matchFound = matcher.find();
+                if (l == getWeekDayIndex(today) && matchFound) {
+                    weekHL[l] = Text.resizeString(weekHL[l], 18, "left");
+                } else {
+                    weekHL[l] = Text.resizeString(weekHL[l], 9, "left");
+                }
+            }
+            System.out.printf(headerFormat, person.getPrenom() + " " + person.getNom(),
+                                            weekHL[0], weekHL[1], weekHL[2], weekHL[3], weekHL[4], weekHL[5], weekHL[6],
+                                            weekHL[7], weekHL[8], weekHL[9], weekHL[10], weekHL[11], weekHL[12], weekHL[13]);
+        } else {
+            String[] weekDays = Jcalendar.weekDays;
+            weekNoHL = Jcalendar.getPastFutureWeeksDates(weeksToSubstractOrAdd);
+            for (int l = 0; l < 7; l++) {
+                weekDays[l] = Text.resizeString(weekDays[l], 9, "left");
+            }
+            System.out.printf(headerFormat, person.getPrenom() + " " + person.getNom(),
+                                            weekDays[0], weekDays[1], weekDays[2], weekDays[3], weekDays[4], weekDays[5], weekDays[6],
+                                            weekNoHL[0], weekNoHL[1], weekNoHL[2], weekNoHL[3], weekNoHL[4], weekNoHL[5], weekNoHL[6]);
+        }
+
+        // body
+        String[][] tab = new String[24][7];
+        for (String[] row : tab) {
+            Arrays.fill(row, "              ");
+        }
+        for (int y = 0; y < 7; y++) {
+            Optional<SortedSet<Activity>> activities = person.getActivity(Jcalendar.stringToLocalDate(weekNoHL[y]));
+            if (activities.isPresent()) {
+                for (Activity activity : activities.get()) {
+                    int x = Jcalendar.getTimeIntervalIndex(activity.getStartTime());
+                    String content = activity.getActivityTitle();
+                    tab[x][y] = content.length() > 14 ? content.substring(0, 11) + "..." : String.format("%" + (-14) + "s", content);
+                }
+            }
+        }
+        String[] flatTab = Arrays.stream(tab)
+                                 .flatMap(Stream::of)
+                                 .toArray(String[]::new);
+        System.out.printf(bodyFormat, flatTab);
+    }
     public static void main(String[] args) throws JcalendarException {
         JcalendarModel testModel = new JcalendarModel();
 

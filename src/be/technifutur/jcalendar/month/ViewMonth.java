@@ -10,6 +10,7 @@ import java.util.stream.Stream;
 
 public class ViewMonth{
     private static final String headFormat = """
+            Utilisateur: %s
             %s, %s
             +----------------+----------------+----------------+----------------+----------------+----------------+----------------+
             +     .  +     .  +    .   +     .  +    .   +     .  +    .   +
@@ -23,21 +24,15 @@ public class ViewMonth{
             """.replaceAll("\\.","%s");
 
     public void displayMonthSchedule (JcalendarModel model, int monthsToSubstractOrAdd) throws JcalendarException {
-        LocalDate date;
-        if (monthsToSubstractOrAdd > 0) {
-            date = model.getDate().plusMonths(monthsToSubstractOrAdd);
-        } else if (monthsToSubstractOrAdd < 0) {
-            date = model.getDate().minusMonths(-monthsToSubstractOrAdd);
-        } else {
-            date = model.getDate();
-        }
+        LocalDate date = model.minusOrPlusMonths(monthsToSubstractOrAdd);
 
         // head
         String[] weekDays = Jcalendar.weekDays;
         for (int l = 0; l < 7; l++) {
-            weekDays[l] = Jcalendar.resizeString(weekDays[l], 9, "left");
+            weekDays[l] = Text.resizeString(weekDays[l], 9, "left");
         }
-        System.out.printf(headFormat, monthEnToFr(date.getMonth().toString()), date.getYear(),
+        System.out.printf(headFormat, "admin",
+                                      monthEnToFr(date.getMonth().toString()), date.getYear(),
                                       weekDays[0], weekDays[1], weekDays[2], weekDays[3], weekDays[4], weekDays[5], weekDays[6]);
 
         // body
@@ -45,7 +40,6 @@ public class ViewMonth{
         List<LocalDate> monthDaysExtended = getWholeMonthExtended(monthDays);
 
         int rowNum = monthDaysExtended.size() / 7;
-
         String[][] tab = new String[rowNum * 2][7];
         for (String[] row : tab) {
             Arrays.fill(row, "              ");
@@ -65,13 +59,13 @@ public class ViewMonth{
             dateVal = monthDaysExtended.get(j);
             if (monthDays.contains(dateVal)) {
                 dayModel = new JcalendarModel(dateVal);
-                if (dayModel.getDate().equals(today)) {
-                    contentDate = TextColor.yellow(localDateToString(dateVal));
+                if (dateVal.equals(today)) {
+                    contentDate = Text.yellow(localDateToString(dateVal));
                     tab[j/7*2][j%7] = "  " + contentDate + "  ";
                     activityNum = dayModel.getRecordsNumber(dateVal);
                     if (activityNum != 0) {
                         contentInfo = String.format("%s activité(s)", activityNum > 9 ? activityNum : " " + activityNum);
-                        contentInfo = TextColor.yellow(contentInfo);
+                        contentInfo = Text.yellow(contentInfo);
                         tab[j/7*2+1][j%7] = contentInfo;
                     }
                 } else {
@@ -85,7 +79,7 @@ public class ViewMonth{
                 }
 
             } else {
-                contentDate = TextColor.white(localDateToString(dateVal));
+                contentDate = Text.white(localDateToString(dateVal));
                 tab[j/7*2][j%7] = "  " + contentDate + "  ";
             }
         }
@@ -95,6 +89,77 @@ public class ViewMonth{
                 .toArray(String[]::new);
         System.out.printf(body.toString(), flatTab);
     }
+
+    public void displayMonthSchedule (Person person, int monthsToSubstractOrAdd) throws JcalendarException {
+        LocalDate date = LocalDate.from(today);
+        if (monthsToSubstractOrAdd > 0) {
+            date = date.plusMonths(monthsToSubstractOrAdd);
+        } else if (monthsToSubstractOrAdd < 0) {
+            date = date.minusMonths(-monthsToSubstractOrAdd);
+        }
+
+        // head
+        String[] weekDays = Jcalendar.weekDays;
+        for (int l = 0; l < 7; l++) {
+            weekDays[l] = Text.resizeString(weekDays[l], 9, "left");
+        }
+        System.out.printf(headFormat, person.getPrenom() + " " + person.getNom(),
+                                      monthEnToFr(date.getMonth().toString()), date.getYear(),
+                                      weekDays[0], weekDays[1], weekDays[2], weekDays[3], weekDays[4], weekDays[5], weekDays[6]);
+
+        // body
+        List<LocalDate> monthDays = getWholeMonth(date);
+        List<LocalDate> monthDaysExtended = getWholeMonthExtended(monthDays);
+
+        int rowNum = monthDaysExtended.size() / 7;
+        String[][] tab = new String[rowNum * 2][7];
+        for (String[] row : tab) {
+            Arrays.fill(row, "              ");
+        }
+
+        StringBuilder body = new StringBuilder();
+        for (int i = 0; i < rowNum; i++) {
+            body.append(bodyFormat);
+        }
+
+        LocalDate dateVal;
+        String contentDate;
+        String contentInfo;
+        int activityNum;
+        for (int j = 0; j < monthDaysExtended.size(); j++) {
+            dateVal = monthDaysExtended.get(j);
+            if (monthDays.contains(dateVal)) {
+                if (dateVal.equals(today)) {
+                    contentDate = Text.yellow(localDateToString(dateVal));
+                    tab[j/7*2][j%7] = "  " + contentDate + "  ";
+                    activityNum = person.getRecordsNumber(dateVal);
+                    if (activityNum != 0) {
+                        contentInfo = String.format("%s activité(s)", activityNum > 9 ? activityNum : " " + activityNum);
+                        contentInfo = Text.yellow(contentInfo);
+                        tab[j/7*2+1][j%7] = contentInfo;
+                    }
+                } else {
+                    contentDate = localDateToString(dateVal);
+                    tab[j/7*2][j%7] = "  " + contentDate + "  ";
+                    activityNum = person.getRecordsNumber(dateVal);
+                    if (activityNum != 0) {
+                        contentInfo = String.format("%s activité(s)", activityNum > 9 ? activityNum : " " + activityNum);
+                        tab[j/7*2+1][j%7] = contentInfo;
+                    }
+                }
+
+            } else {
+                contentDate = Text.white(localDateToString(dateVal));
+                tab[j/7*2][j%7] = "  " + contentDate + "  ";
+            }
+        }
+
+        String[] flatTab = Arrays.stream(tab)
+                .flatMap(Stream::of)
+                .toArray(String[]::new);
+        System.out.printf(body.toString(), flatTab);
+    }
+
     public static void main(String[] args) throws JcalendarException {
         JcalendarModel testModel = new JcalendarModel();
 

@@ -1,6 +1,6 @@
 package be.technifutur.jcalendar;
 
-public class TextColor {
+public class Text {
     private static final String ANSI_RESET = "\u001B[0m";
 
     public static String black(String text) {
@@ -41,6 +41,16 @@ public class TextColor {
     public static String white(String text) {
         String ANSI_WHITE = "\u001B[37m";
         return new String(ANSI_WHITE + text + ANSI_RESET);
+    }
+
+    public static String resizeString(String s, int len, String padding) {
+        if (padding.equalsIgnoreCase("left")) {
+            return String.format("%" + (-len) + "s", s);
+        } else if (padding.equalsIgnoreCase("right")) {
+            return String.format("%" + len + "s", s);
+        } else {
+            return null;
+        }
     }
 
 //    public static void main(String[] args) {

@@ -74,7 +74,9 @@ public class Activity implements Comparable<Activity>{
                endTime.toString() + " " +
                date.toString() + ", " +
                "Activité: " + activityTitle + ", " +
-               "Local: " + location + "\n";
+               "Local: " + location + "," +
+               "Type: " + type.toString().toLowerCase() +"\n"
+                ;
     }
 
     public int compareTo(Activity a2) {
@@ -87,6 +89,9 @@ public class Activity implements Comparable<Activity>{
                     compare = this.activityTitle.compareTo(a2.activityTitle);
                     if (compare == 0) {
                         compare = this.location.compareTo(a2.location);
+                        if (compare == 0) {
+                            compare = this.type.compareTo(a2.type);
+                        }
                     }
                 }
             }
