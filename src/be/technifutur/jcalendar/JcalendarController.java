@@ -237,9 +237,11 @@ public class JcalendarController {
                         listenRequestForMonthMainMenu(input.read(mainMenu), true, isAdmin);
                     } else if (request.equalsIgnoreCase("A")) {
                         addRecord(input.read(addNewRecordTips), isAdmin);
+                        serializer();
                         listenRequestForDayMainMenu(input.read(mainMenu), false, isAdmin);
                     } else if (request.equalsIgnoreCase("D")) {
                         deleteRecord(input.read(addNewRecordTips), isAdmin);
+                        serializer();
                         listenRequestForDayMainMenu(input.read(mainMenu), false, isAdmin);
                     } else if (request.equalsIgnoreCase("L")) {
                         printAllRecords(isAdmin);
@@ -265,6 +267,7 @@ public class JcalendarController {
                         if (request.equalsIgnoreCase("PR")) {
                             printAllRecords(false);
                             setPresencePage(input.read(setPresenceTips));
+                            serializer();
                         } else if (request.equalsIgnoreCase("V")) {
                             printAllRecords(true);
                         }
@@ -332,9 +335,11 @@ public class JcalendarController {
                         listenRequestForMonthMainMenu(input.read(mainMenu), true, isAdmin);
                     } else if (request.equalsIgnoreCase("A")) {
                         addRecord(input.read(addNewRecordTips), isAdmin);
+                        serializer();
                         listenRequestForWeekMainMenu(input.read(mainMenu), false, isAdmin);
                     } else if (request.equalsIgnoreCase("D")) {
                         deleteRecord(input.read(addNewRecordTips), isAdmin);
+                        serializer();
                         listenRequestForWeekMainMenu(input.read(mainMenu), false, isAdmin);
                     } else if (request.equalsIgnoreCase("L")) {
                         printAllRecords(isAdmin);
@@ -360,6 +365,7 @@ public class JcalendarController {
                         if (request.equalsIgnoreCase("PR")) {
                             printAllRecords(false);
                             setPresencePage(input.read(setPresenceTips));
+                            serializer();
                         } else if (request.equalsIgnoreCase("V")) {
                             printAllRecords(true);
                         }
@@ -427,9 +433,11 @@ public class JcalendarController {
                         listenRequestForMonthMainMenu(input.read(mainMenu), true, isAdmin);
                     } else if (request.equalsIgnoreCase("A")) {
                         addRecord(input.read(addNewRecordTips), isAdmin);
+                        serializer();
                         listenRequestForMonthMainMenu(input.read(mainMenu), false, isAdmin);
                     } else if (request.equalsIgnoreCase("D")) {
                         deleteRecord(input.read(addNewRecordTips), isAdmin);
+                        serializer();
                         listenRequestForMonthMainMenu(input.read(mainMenu), false, isAdmin);
                     } else if (request.equalsIgnoreCase("L")) {
                         printAllRecords(isAdmin);
@@ -455,6 +463,7 @@ public class JcalendarController {
                         if (request.equalsIgnoreCase("PR")) {
                             printAllRecords(false);
                             setPresencePage(input.read(setPresenceTips));
+                            serializer();
                         } else if (request.equalsIgnoreCase("V")) {
                             printAllRecords(true);
                         }
