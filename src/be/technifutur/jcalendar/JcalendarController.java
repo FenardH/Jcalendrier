@@ -3,7 +3,6 @@ package be.technifutur.jcalendar;
 import be.technifutur.jcalendar.day.ViewDay;
 import be.technifutur.jcalendar.month.ViewMonth;
 import be.technifutur.jcalendar.week.ViewWeek;
-
 import java.io.*;
 import java.time.LocalDate;
 import java.time.LocalTime;
@@ -26,125 +25,15 @@ public class JcalendarController {
     private Person personLogin;
     Jcalendar jcalendar = new Jcalendar();
     LocalDate today = jcalendar.today;
-    private String logo = """
-                         ╔╗         ╔╗           ╔╗           \s
-                         ║║         ║║           ║║           \s
-                         ║║╔══╗╔══╗ ║║ ╔══╗╔═╗ ╔═╝║╔═╗╔╗╔══╗╔═╗
-                       ╔╗║║║╔═╝╚ ╗║ ║║ ║╔╗║║╔╗╗║╔╗║║╔╝╠╣║╔╗║║╔╝
-                       ║╚╝║║╚═╗║╚╝╚╗║╚╗║║═╣║║║║║╚╝║║║ ║║║║═╣║║\s
-                       ╚══╝╚══╝╚═══╝╚═╝╚══╝╚╝╚╝╚══╝╚╝ ╚╝╚══╝╚╝\s                                      
-                         """;
-    private String welcomePage = String.format("""
-                       Veuillez saisir votre nom et prénom (i.e. Olivier,Giroud) ou les commandes suivantes :
-                       %s - se connecter en tant que administrateur(trice)
-                       %s - s'inscrire comme un(e) nouveau(elle) utilisateur(trice)
-                       %s - quitter
-                       """, Text.green("admin"), Text.green("N"), Text.green("Q"));
-
-    private String addNewUserTips = """
-                       Veuillez saisir votre nom et prénom:
-                       prénom,nom OU prénom,nom,club,tarif
-                       exemple:
-                       Thierry,Henry OU Thierry,Henry,Arsenal,0
-                       """;
-
-    private String mainMenuHeader = String.format("""
-                         Veuillez saisir votre command avec les instructions suivantes:
-                         . - page précédente     . - page suivante
-                         . - page Jour          . - page Semaine           . - page Mois
-                         . - ajouter une nouvelle activité   . - supprimer une activité
-                         . - lister toutes les activités   . - rechercher par date
-                         """.replaceAll("\\.", "%s"), Text.green("P"), Text.green("S"),
-                                            Text.green("Jo"), Text.green("Se"), Text.green("Mo"),
-                                            Text.green("A"), Text.green("D"),
-                                            Text.green("L"), Text.green("R"));
-
-    private String mainMenuOptionAdmin = String.format("""
-                         . - importer enregistrements   . - exporter enregistrements   . - lister tous les utilisateurs
-                         """.replaceAll("\\.", "%s"), Text.green("IMP"), Text.green("EXP"),
-                                                                      Text.green("LU"));
-
-    private String mainMenuOptionUser = String.format("""
-                         . - prendre présence pour activités   . - voir toutes les activités dans le système  
-                         """.replaceAll("\\.", "%s"), Text.green("PR"), Text.green("V"));
-
-    private String mainMenuFooter = String.format("""
-                         . - changer compte      . - quitter
-                         """.replaceAll("\\.", "%s"), Text.green("C"), Text.green("Q"));
-
-    private String mainMenuAdmin = mainMenuHeader + mainMenuOptionAdmin + mainMenuFooter;
-
-    private String mainMenuUser = mainMenuHeader + mainMenuOptionUser + mainMenuFooter;
-
-    private String addNewRecordTips = """
-                         Veuillez saisir nouvel enregistrement au format suivant:
-                         date(jj/mm/aaaa),heure de début(hh:mm),heure de fin(hh:mm),nom d'activité,localisation,type d'activité(séance/repos/logement)
-                         exemple:
-                         30/12/2022,09:00,10:00,Python Course,Technifutur,seance
-                         """;
-
-
-    String searchRecordTips = """
-                         Veuillez saisir une date de enregistrement au format suivant:
-                         date(jj/mm/aaaa)
-                         exemple:
-                         30/12/2022
-                         """;
-
-    String importDataTips = """
-                        veuillez saisir le chemin de fichier (.csv) :
-                        * par défaut : src/be/technifutur/jcalendar/data/testData.csv
-                        """;
-
-    String exportDataTips = """
-                        veuillez saisir le chemin pour stocker le fichier (.csv) :
-                        * par exemple : src/be/technifutur/jcalendar/data/saveData.csv
-                        """;
-
-    String setPresenceTips = """
-                        veuillez saisir indices d'activité et oui ou non représentant la présence au format suivant:
-                        indices d'activité indiqués dans la liste au-dessus (nombre),présence(oui/non)
-                        exemple: 
-                        2,oui,3,non,5,oui
-                        """;
-    String ruleWelcomeMenu = "admin" +  // admin"
-                             "|([a-zA-Z]+," +  // first name
-                             "[a-zA-Z]+" +  // last name
-                             "|([nq])?)"  // command
-                             ;
-
-    String ruleMainMenu = "p|s|jo|se|mo|a|d|l|r|c|q|imp|exp|lu|pr|v";
-
-    String ruleRegistrationMenu = "[a-zA-Z]+," +  // first name
-                                  "[a-zA-Z]+" +  // last name
-                                  "(,[a-zA-Z]+" +  // club
-                                  ",\\d+)?"  // tarif
-                                  ;
-
-    String ruleDate = "(((0[1-9]|[1-2][0-9]|3[0-1])/(0[13578]|(10|12)))|((0[1-9]|[1-2][0-9])/02)|((0[1-9]|[1-2][0-9]|30)(0[469]|11)))/[0-9]{4}"; // date
-    String ruleActivity = ruleDate + "," +  // date (dd/MM/yyyy)
-                          "(20|21|22|23|[01]\\d|\\d)((:[0-5]\\d){1,2})," +  // start time (HH:mm)
-                          "(20|21|22|23|[01]\\d|\\d)((:[0-5]\\d){1,2})," +  // end time (HH:mm)
-                          "\\S[\\w ]*," +  // activity name
-                          "\\S[\\w ]*," +  // location
-                          "(seance|repos|logement)," +  // activity type
-                          "\\d+(.\\d|.\\d\\d)?"
-                          ;
-
-    public JcalendarController(JcalendarModel calendar, int daysToMinusOrPlus, int weeksToMinusOrPlus, int monthsToMinusOrPlus) {
-        this.calendar = calendar;
-        this.daysToMinusOrPlus = daysToMinusOrPlus;
-        this.weeksToMinusOrPlus = weeksToMinusOrPlus;
-        this.monthsToMinusOrPlus = monthsToMinusOrPlus;
-    }
+    Menu menu = new Menu();
 
     public JcalendarController(JcalendarModel calendar) {
-        this(calendar, 0, 0, 0);
+        this.calendar = calendar;
     }
 
     public void start() {
         deserializer();
-        System.out.println(logo);
+        System.out.println(menu.logo);
         welcomePage();
     }
 
@@ -160,15 +49,15 @@ public class JcalendarController {
                     String[] in = request.split(",");
                     personLogin = getPerson(in[0], in[1]);
                     viewWeek.displayWeekSchedule(personLogin, weeksToMinusOrPlus);
-                    listenRequestForWeekMainMenu(input.read(mainMenuUser), true, false);
+                    listenRequestForWeekMainMenu(input.read(menu.mainMenuUser), true, false);
                 }  else if (request.equalsIgnoreCase("admin")) {
                     viewWeek.displayWeekSchedule(calendar, monthsToMinusOrPlus);
-                    listenRequestForWeekMainMenu(input.read(mainMenuAdmin), true, true);
+                    listenRequestForWeekMainMenu(input.read(menu.mainMenuAdmin), true, true);
                 } else if (request.equalsIgnoreCase("n")) {
-                    String[] userName = registerPerson(input.read(addNewUserTips));
+                    String[] userName = registerPerson(input.read(menu.addNewUserTips));
                     personLogin = getPerson(userName[0], userName[1]);
                     viewWeek.displayWeekSchedule(personLogin, weeksToMinusOrPlus);
-                    listenRequestForWeekMainMenu(input.read(mainMenuUser), true, false);
+                    listenRequestForWeekMainMenu(input.read(menu.mainMenuUser), true, false);
                 } else if (request.equalsIgnoreCase("q")) {
                     serializer();
                     System.exit(0);
@@ -180,8 +69,8 @@ public class JcalendarController {
     }
 
     private String listenRequestWelcomeMenu() {
-        String request = input.read(welcomePage);
-        if (isInputCorrect(ruleWelcomeMenu, request)) {
+        String request = input.read(menu.welcomePage);
+        if (isInputCorrect(menu.ruleWelcomeMenu, request)) {
             return request;
         } else {
             throw new IllegalArgumentException(Text.red("\ncommande est invalide !\n"));
@@ -190,64 +79,39 @@ public class JcalendarController {
 
     private void listenRequestForDayMainMenu(String request, boolean reset, boolean isAdmin) throws JcalendarTimeConflictException {
         if (reset) {daysToMinusOrPlus = weeksToMinusOrPlus = monthsToMinusOrPlus = 0;}
-        String mainMenu = isAdmin ? mainMenuAdmin : mainMenuUser;
+        String mainMenu = isAdmin ? menu.mainMenuAdmin : menu.mainMenuUser;
         while (true){
-            if (isInputCorrect(ruleMainMenu, request)) {
+            if (isInputCorrect(menu.ruleMainMenu, request)) {
                 try {
                     if (request.equalsIgnoreCase("P")) {
                         daysToMinusOrPlus -= 1;
-                        if (isAdmin) {
-                            viewDay.displayDaySchedule(calendar, daysToMinusOrPlus);
-                        } else {
-                            viewDay.displayDaySchedule(personLogin, daysToMinusOrPlus);
-                        }
-                        listenRequestForDayMainMenu(input.read(mainMenu), false, isAdmin);
+                        executeRequestForDayMainMenu(isAdmin, mainMenu, false);
                     } else if (request.equalsIgnoreCase("S")) {
                         daysToMinusOrPlus += 1;
-                        if (isAdmin) {
-                            viewDay.displayDaySchedule(calendar, daysToMinusOrPlus);;
-                        } else {
-                            viewDay.displayDaySchedule(personLogin, daysToMinusOrPlus);
-                        }
-                        listenRequestForDayMainMenu(input.read(mainMenu), false, isAdmin);
+                        executeRequestForDayMainMenu(isAdmin, mainMenu, false);
                     } else if (request.equalsIgnoreCase("Jo")) {
-                        if (isAdmin) {
-                            viewDay.displayDaySchedule(calendar, daysToMinusOrPlus);
-                        } else {
-                            viewDay.displayDaySchedule(personLogin, daysToMinusOrPlus);
-                        }
-                        listenRequestForDayMainMenu(input.read(mainMenu), true,isAdmin);
+                        executeRequestForDayMainMenu(isAdmin, mainMenu, true);
                     } else if (request.equalsIgnoreCase("Se")) {
                         LocalDate currentDay = calendar.minusOrPlusDays(daysToMinusOrPlus);
                         weeksToMinusOrPlus = (int)ChronoUnit.WEEKS.between(today, currentDay);
-                        if (isAdmin) {
-                            viewWeek.displayWeekSchedule(calendar, weeksToMinusOrPlus);
-                        } else {
-                            viewWeek.displayWeekSchedule(personLogin, weeksToMinusOrPlus);
-                        }
-                        listenRequestForWeekMainMenu(input.read(mainMenu), true, isAdmin);
+                        executeRequestForWeekMainMenu(isAdmin, mainMenu, true);
                     } else if (request.equalsIgnoreCase("Mo")) {
                         LocalDate currentDay = calendar.minusOrPlusDays(daysToMinusOrPlus);
                         monthsToMinusOrPlus = (int)ChronoUnit.MONTHS.between(today, currentDay);
-                        if (isAdmin) {
-                            viewMonth.displayMonthSchedule(calendar, monthsToMinusOrPlus);
-                        } else {
-                            viewMonth.displayMonthSchedule(personLogin, monthsToMinusOrPlus);
-                        }
-                        listenRequestForMonthMainMenu(input.read(mainMenu), true, isAdmin);
+                        executeRequestForMonthMainMenu(isAdmin, mainMenu, true);
                     } else if (request.equalsIgnoreCase("A")) {
-                        addRecord(input.read(addNewRecordTips), isAdmin);
+                        addRecord(input.read(menu.addNewRecordTips), isAdmin);
                         serializer();
                         listenRequestForDayMainMenu(input.read(mainMenu), false, isAdmin);
                     } else if (request.equalsIgnoreCase("D")) {
-                        deleteRecord(input.read(addNewRecordTips), isAdmin);
+                        deleteRecord(input.read(menu.addNewRecordTips), isAdmin);
                         serializer();
                         listenRequestForDayMainMenu(input.read(mainMenu), false, isAdmin);
                     } else if (request.equalsIgnoreCase("L")) {
                         printAllRecords(isAdmin);
                         listenRequestForDayMainMenu(input.read(mainMenu), false, isAdmin);
                     } else if (request.equalsIgnoreCase("R")) {
-                        findRecord(input.read(searchRecordTips), isAdmin);
+                        findRecord(input.read(menu.searchRecordTips), isAdmin);
                         listenRequestForDayMainMenu(input.read(mainMenu), false, isAdmin);
                     } else if (request.equalsIgnoreCase("C")) {
                         welcomePage();
@@ -257,16 +121,16 @@ public class JcalendarController {
                     }
                     if (isAdmin) {
                         if (request.equalsIgnoreCase("IMP")) {
-                            importData(input.read(importDataTips));
+                            importData(input.read(menu.importDataTips));
                         } else if (request.equalsIgnoreCase("EXP")) {
-                            exportData(input.read(exportDataTips));
+                            exportData(input.read(menu.exportDataTips));
                         } else if (request.equalsIgnoreCase("LU")) {
                             printPersonRegistrated();
                         }
                     } else {
                         if (request.equalsIgnoreCase("PR")) {
                             printAllRecords(false);
-                            setPresencePage(input.read(setPresenceTips));
+                            setPresencePage(input.read(menu.setPresenceTips));
                             serializer();
                         } else if (request.equalsIgnoreCase("V")) {
                             printAllRecords(true);
@@ -277,75 +141,45 @@ public class JcalendarController {
                 }
             }
 
-            if (isAdmin) {
-                viewDay.displayDaySchedule(calendar, daysToMinusOrPlus);
-            } else {
-                viewDay.displayDaySchedule(personLogin, daysToMinusOrPlus);
-            }
-            listenRequestForDayMainMenu(input.read(mainMenu), false, isAdmin);
+            executeRequestForDayMainMenu(isAdmin, mainMenu, false);
         }
     }
 
     private void listenRequestForWeekMainMenu(String request, boolean reset, boolean isAdmin) throws JcalendarException {
         if (reset) {daysToMinusOrPlus = weeksToMinusOrPlus = monthsToMinusOrPlus = 0;}
-        String mainMenu = isAdmin ? mainMenuAdmin : mainMenuUser;
+        String mainMenu = isAdmin ? menu.mainMenuAdmin : menu.mainMenuUser;
         while (true){
-            if (isInputCorrect(ruleMainMenu, request)) {
+            if (isInputCorrect(menu.ruleMainMenu, request)) {
                 try {
                     if (request.equalsIgnoreCase("P")) {
                         weeksToMinusOrPlus -= 1;
-                        if (isAdmin) {
-                            viewWeek.displayWeekSchedule(calendar, weeksToMinusOrPlus);
-                        } else {
-                            viewWeek.displayWeekSchedule(personLogin, weeksToMinusOrPlus);
-                        }
-                        listenRequestForWeekMainMenu(input.read(mainMenu), false, isAdmin);
+                        executeRequestForWeekMainMenu(isAdmin, mainMenu, false);
                     } else if (request.equalsIgnoreCase("S")) {
                         weeksToMinusOrPlus += 1;
-                        if (isAdmin) {
-                            viewWeek.displayWeekSchedule(calendar, weeksToMinusOrPlus);
-                        } else {
-                            viewWeek.displayWeekSchedule(personLogin, weeksToMinusOrPlus);
-                        }
-                        listenRequestForWeekMainMenu(input.read(mainMenu), false, isAdmin);
+                        executeRequestForWeekMainMenu(isAdmin, mainMenu, false);
                     } else if (request.equalsIgnoreCase("Jo")) {
                         LocalDate currentDay = calendar.minusOrPlusWeeks(weeksToMinusOrPlus);
                         daysToMinusOrPlus = (int)ChronoUnit.DAYS.between(today, currentDay);
-                        if (isAdmin) {
-                            viewDay.displayDaySchedule(calendar, daysToMinusOrPlus);
-                        } else {
-                            viewDay.displayDaySchedule(personLogin, daysToMinusOrPlus);
-                        }
-                        listenRequestForDayMainMenu(input.read(mainMenu), true, isAdmin);
+                        executeRequestForDayMainMenu(isAdmin, mainMenu, true);
                     } else if (request.equalsIgnoreCase("Se")) {
-                        if (isAdmin) {
-                            viewWeek.displayWeekSchedule(calendar, weeksToMinusOrPlus);
-                        } else {
-                            viewWeek.displayWeekSchedule(personLogin, weeksToMinusOrPlus);
-                        }
-                        listenRequestForWeekMainMenu(input.read(mainMenu), true, isAdmin);
+                        executeRequestForWeekMainMenu(isAdmin, mainMenu, true);
                     } else if (request.equalsIgnoreCase("Mo")) {
                         LocalDate currentDay = calendar.minusOrPlusWeeks(weeksToMinusOrPlus);
                         monthsToMinusOrPlus = (int)ChronoUnit.MONTHS.between(today, currentDay);
-                        if (isAdmin) {
-                            viewMonth.displayMonthSchedule(calendar, monthsToMinusOrPlus);
-                        } else {
-                            viewMonth.displayMonthSchedule(personLogin, monthsToMinusOrPlus);
-                        }
-                        listenRequestForMonthMainMenu(input.read(mainMenu), true, isAdmin);
+                        executeRequestForMonthMainMenu(isAdmin, mainMenu, true);
                     } else if (request.equalsIgnoreCase("A")) {
-                        addRecord(input.read(addNewRecordTips), isAdmin);
+                        addRecord(input.read(menu.addNewRecordTips), isAdmin);
                         serializer();
                         listenRequestForWeekMainMenu(input.read(mainMenu), false, isAdmin);
                     } else if (request.equalsIgnoreCase("D")) {
-                        deleteRecord(input.read(addNewRecordTips), isAdmin);
+                        deleteRecord(input.read(menu.addNewRecordTips), isAdmin);
                         serializer();
                         listenRequestForWeekMainMenu(input.read(mainMenu), false, isAdmin);
                     } else if (request.equalsIgnoreCase("L")) {
                         printAllRecords(isAdmin);
                         listenRequestForWeekMainMenu(input.read(mainMenu), false, isAdmin);
                     } else if (request.equalsIgnoreCase("R")) {
-                        findRecord(input.read(searchRecordTips), isAdmin);
+                        findRecord(input.read(menu.searchRecordTips), isAdmin);
                         listenRequestForWeekMainMenu(input.read(mainMenu), false, isAdmin);
                     } else if (request.equalsIgnoreCase("C")) {
                         welcomePage();
@@ -355,16 +189,16 @@ public class JcalendarController {
                     }
                     if (isAdmin) {
                         if (request.equalsIgnoreCase("IMP")) {
-                            importData(input.read(importDataTips));
+                            importData(input.read(menu.importDataTips));
                         } else if (request.equalsIgnoreCase("EXP")) {
-                            exportData(input.read(exportDataTips));
+                            exportData(input.read(menu.exportDataTips));
                         } else if (request.equalsIgnoreCase("LU")) {
                             printPersonRegistrated();
                         }
                     } else {
                         if (request.equalsIgnoreCase("PR")) {
                             printAllRecords(false);
-                            setPresencePage(input.read(setPresenceTips));
+                            setPresencePage(input.read(menu.setPresenceTips));
                             serializer();
                         } else if (request.equalsIgnoreCase("V")) {
                             printAllRecords(true);
@@ -375,75 +209,45 @@ public class JcalendarController {
                 }
             }
 
-            if (isAdmin) {
-                viewWeek.displayWeekSchedule(calendar, weeksToMinusOrPlus);
-            } else {
-                viewWeek.displayWeekSchedule(personLogin, weeksToMinusOrPlus);
-            }
-            listenRequestForWeekMainMenu(input.read(mainMenu), false, isAdmin);
+            executeRequestForWeekMainMenu(isAdmin, mainMenu, false);
         }
     }
 
     private void listenRequestForMonthMainMenu(String request, boolean reset, boolean isAdmin) throws JcalendarException {
         if (reset) {daysToMinusOrPlus = weeksToMinusOrPlus = monthsToMinusOrPlus = 0;}
-        String mainMenu = isAdmin ? mainMenuAdmin : mainMenuUser;
+        String mainMenu = isAdmin ? menu.mainMenuAdmin : menu.mainMenuUser;
         while (true){
-            if (isInputCorrect(ruleMainMenu, request)) {
+            if (isInputCorrect(menu.ruleMainMenu, request)) {
                 try {
                     if (request.equalsIgnoreCase("P")) {
                         monthsToMinusOrPlus -= 1;
-                        if (isAdmin) {
-                            viewMonth.displayMonthSchedule(calendar, monthsToMinusOrPlus);
-                        } else {
-                            viewMonth.displayMonthSchedule(personLogin, monthsToMinusOrPlus);
-                        }
-                        listenRequestForMonthMainMenu(input.read(mainMenu), false, isAdmin);
+                        executeRequestForMonthMainMenu(isAdmin, mainMenu, false);
                     } else if (request.equalsIgnoreCase("S")) {
                         monthsToMinusOrPlus += 1;
-                        if (isAdmin) {
-                            viewMonth.displayMonthSchedule(calendar, monthsToMinusOrPlus);
-                        } else {
-                            viewMonth.displayMonthSchedule(personLogin, monthsToMinusOrPlus);
-                        }
-                        listenRequestForMonthMainMenu(input.read(mainMenu), false, isAdmin);
+                        executeRequestForMonthMainMenu(isAdmin, mainMenu, false);
                     } else if (request.equalsIgnoreCase("Jo")) {
                         LocalDate currentDay = calendar.minusOrPlusMonths(monthsToMinusOrPlus);
                         daysToMinusOrPlus = (int)ChronoUnit.DAYS.between(today, currentDay);
-                        if (isAdmin) {
-                            viewDay.displayDaySchedule(calendar, daysToMinusOrPlus);
-                        } else {
-                            viewDay.displayDaySchedule(personLogin, daysToMinusOrPlus);
-                        }
-                        listenRequestForDayMainMenu(input.read(mainMenu), true, isAdmin);
+                        executeRequestForDayMainMenu(isAdmin, mainMenu, true);
                     } else if (request.equalsIgnoreCase("Se")) {
                         LocalDate currentDay = calendar.minusOrPlusMonths(monthsToMinusOrPlus);
                         weeksToMinusOrPlus = (int)ChronoUnit.WEEKS.between(today, currentDay);
-                        if (isAdmin) {
-                            viewWeek.displayWeekSchedule(calendar, weeksToMinusOrPlus);
-                        } else {
-                            viewWeek.displayWeekSchedule(personLogin, weeksToMinusOrPlus);
-                        }
-                        listenRequestForWeekMainMenu(input.read(mainMenu), true, isAdmin);
+                        executeRequestForWeekMainMenu(isAdmin, mainMenu, true);
                     } else if (request.equalsIgnoreCase("Mo")) {
-                        if (isAdmin) {
-                            viewMonth.displayMonthSchedule(calendar, monthsToMinusOrPlus);
-                        } else {
-                            viewMonth.displayMonthSchedule(personLogin, monthsToMinusOrPlus);
-                        }
-                        listenRequestForMonthMainMenu(input.read(mainMenu), true, isAdmin);
+                        executeRequestForMonthMainMenu(isAdmin, mainMenu, true);
                     } else if (request.equalsIgnoreCase("A")) {
-                        addRecord(input.read(addNewRecordTips), isAdmin);
+                        addRecord(input.read(menu.addNewRecordTips), isAdmin);
                         serializer();
                         listenRequestForMonthMainMenu(input.read(mainMenu), false, isAdmin);
                     } else if (request.equalsIgnoreCase("D")) {
-                        deleteRecord(input.read(addNewRecordTips), isAdmin);
+                        deleteRecord(input.read(menu.addNewRecordTips), isAdmin);
                         serializer();
                         listenRequestForMonthMainMenu(input.read(mainMenu), false, isAdmin);
                     } else if (request.equalsIgnoreCase("L")) {
                         printAllRecords(isAdmin);
                         listenRequestForMonthMainMenu(input.read(mainMenu), false, isAdmin);
                     } else if (request.equalsIgnoreCase("R")) {
-                        findRecord(input.read(searchRecordTips), isAdmin);
+                        findRecord(input.read(menu.searchRecordTips), isAdmin);
                         listenRequestForMonthMainMenu(input.read(mainMenu), false, isAdmin);
                     } else if (request.equalsIgnoreCase("C")) {
                         welcomePage();
@@ -453,16 +257,16 @@ public class JcalendarController {
                     }
                     if (isAdmin) {
                         if (request.equalsIgnoreCase("IMP")) {
-                            importData(input.read(importDataTips));
+                            importData(input.read(menu.importDataTips));
                         } else if (request.equalsIgnoreCase("EXP")) {
-                            exportData(input.read(exportDataTips));
+                            exportData(input.read(menu.exportDataTips));
                         } else if (request.equalsIgnoreCase("LU")) {
                             printPersonRegistrated();
                         }
                     } else {
                         if (request.equalsIgnoreCase("PR")) {
                             printAllRecords(false);
-                            setPresencePage(input.read(setPresenceTips));
+                            setPresencePage(input.read(menu.setPresenceTips));
                             serializer();
                         } else if (request.equalsIgnoreCase("V")) {
                             printAllRecords(true);
@@ -482,8 +286,34 @@ public class JcalendarController {
         }
     }
 
-    private boolean isInputCorrect(String rule, String read) {
-        Pattern pattern = Pattern.compile(rule, Pattern.CASE_INSENSITIVE);
+    private void executeRequestForDayMainMenu(boolean isAdmin, String mainMenu, boolean reset) throws JcalendarTimeConflictException {
+        if (isAdmin) {
+            viewDay.displayDaySchedule(calendar, daysToMinusOrPlus);
+        } else {
+            viewDay.displayDaySchedule(personLogin, daysToMinusOrPlus);
+        }
+        listenRequestForDayMainMenu(input.read(mainMenu), reset, isAdmin);
+    }
+
+    private void executeRequestForWeekMainMenu(boolean isAdmin, String mainMenu, boolean reset) throws JcalendarException {
+        if (isAdmin) {
+            viewWeek.displayWeekSchedule(calendar, weeksToMinusOrPlus);
+        } else {
+            viewWeek.displayWeekSchedule(personLogin, weeksToMinusOrPlus);
+        }
+        listenRequestForWeekMainMenu(input.read(mainMenu), reset, isAdmin);
+    }
+
+    private void executeRequestForMonthMainMenu(boolean isAdmin, String mainMenu, boolean reset) throws JcalendarException {
+        if (isAdmin) {
+            viewMonth.displayMonthSchedule(calendar, monthsToMinusOrPlus);
+        } else {
+            viewMonth.displayMonthSchedule(personLogin, monthsToMinusOrPlus);
+        }
+        listenRequestForMonthMainMenu(input.read(mainMenu), reset, isAdmin);
+    }
+
+    private boolean isInputCorrect(Pattern pattern, String read) {
         Matcher matcher = pattern.matcher(read);
         if (matcher.matches()) {
             return true;
@@ -493,7 +323,7 @@ public class JcalendarController {
     }
 
     private void addRecord(String read, boolean isAdmin) throws JcalendarTimeConflictException, JcalendarNoRecordException {
-        if (isInputCorrect(ruleActivity, read)) {
+        if (isInputCorrect(menu.ruleActivity, read)) {
             String[] input = read.split(",");
             LocalDate date = jcalendar.stringToLocalDate(input[0]);
             LocalTime startTime = jcalendar.stringToLocalTime(input[1]);
@@ -535,7 +365,7 @@ public class JcalendarController {
     }
 
     private void deleteRecord(String read, boolean isAdmin) throws JcalendarNoRecordException, JcalendarTimeConflictException {
-        if (isInputCorrect(ruleActivity, read)) {
+        if (isInputCorrect(menu.ruleActivity, read)) {
             String[] input = read.split(",");
             if (isAdmin) {
                 calendar.deleteRecord(input[0], input[1], input[2], input[3], input[4], input[5]);
@@ -585,7 +415,7 @@ public class JcalendarController {
     }
 
     private void findRecord(String read, boolean isAdmin) throws JcalendarNoRecordException, JcalendarTimeConflictException {
-        if (isInputCorrect(ruleDate, read)) {
+        if (isInputCorrect(menu.ruleDate, read)) {
             LocalDate date = jcalendar.stringToLocalDate(read);
             if (isAdmin) {
                 Optional<SortedSet<Activity>> activities = calendar.getRecord(date);
@@ -631,7 +461,7 @@ public class JcalendarController {
     }
 
     private String[] registerPerson(String read) {
-        if (isInputCorrect(ruleRegistrationMenu, read)) {
+        if (isInputCorrect(menu.ruleRegistrationMenu, read)) {
             String[] input = read.split(",");
             if (input.length == 2) {
                 addPerson(input[0], input[1]);
@@ -649,7 +479,7 @@ public class JcalendarController {
         for (Person person : personList) {
             System.out.printf("%s,%s\n", person.getPrenom(), person.getNom());
         }
-        System.out.printf(Text.green("%s utilisateur(s) trouvé(s) !\n"), personList.size());
+        System.out.printf(Text.green("%s utilisateur(s) trouvé(s) !\n\n"), personList.size());
     }
 
     public void importData(String path) throws JcalendarTimeConflictException, IOException {
