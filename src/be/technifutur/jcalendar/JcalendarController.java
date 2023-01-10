@@ -4,6 +4,7 @@ import be.technifutur.jcalendar.day.ViewDay;
 import be.technifutur.jcalendar.month.ViewMonth;
 import be.technifutur.jcalendar.week.ViewWeek;
 
+import java.io.*;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.temporal.ChronoUnit;
@@ -11,10 +12,8 @@ import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import static be.technifutur.jcalendar.Jcalendar.today;
-
 public class JcalendarController {
-    private JcalendarModel calendar;
+    private JcalendarModel calendar = null;
     private ViewDay viewDay = new ViewDay();
     private ViewWeek viewWeek = new ViewWeek();
     private ViewMonth viewMonth = new ViewMonth();
@@ -25,6 +24,8 @@ public class JcalendarController {
     private final Input input = new ScannerInput();
     private String login = "admin";
     private Person personLogin;
+    Jcalendar jcalendar = new Jcalendar();
+    LocalDate today = jcalendar.today;
     private String logo = """
                          ╔╗         ╔╗           ╔╗           \s
                          ║║         ║║           ║║           \s
@@ -34,54 +35,85 @@ public class JcalendarController {
                        ╚══╝╚══╝╚═══╝╚═╝╚══╝╚╝╚╝╚══╝╚╝ ╚╝╚══╝╚╝\s                                      
                          """;
     private String welcomePage = String.format("""
-                       Veuillez saisir votre nom et prenom (i.e. Olivier,Giroud) ou les commandes suivantes :
+                       Veuillez saisir votre nom et prénom (i.e. Olivier,Giroud) ou les commandes suivantes :
                        %s - se connecter en tant que administrateur(trice)
                        %s - s'inscrire comme un(e) nouveau(elle) utilisateur(trice)
                        %s - quitter
                        """, Text.green("admin"), Text.green("N"), Text.green("Q"));
 
     private String addNewUserTips = """
-                       Veuillez saisir votre nom et prenom:
-                       prénom,nom OU prénom,nom,club,tariff
-                       example:
+                       Veuillez saisir votre nom et prénom:
+                       prénom,nom OU prénom,nom,club,tarif
+                       exemple:
                        Thierry,Henry OU Thierry,Henry,Arsenal,0
                        """;
 
-    private String mainMenu = String.format("""
+    private String mainMenuHeader = String.format("""
                          Veuillez saisir votre command avec les instructions suivantes:
                          . - page précédente     . - page suivante
-                         . - page Jour          . - page Semaine           . - mois
+                         . - page Jour          . - page Semaine           . - page Mois
                          . - ajouter une nouvelle activité   . - supprimer une activité
-                         . - lister toutes les activité   . - rechcher selon une date 
-                         . - changer compte      . - quitter
+                         . - lister toutes les activités   . - rechercher par date
                          """.replaceAll("\\.", "%s"), Text.green("P"), Text.green("S"),
                                             Text.green("Jo"), Text.green("Se"), Text.green("Mo"),
                                             Text.green("A"), Text.green("D"),
-                                            Text.green("L"), Text.green("R"),
-                                            Text.green("C"), Text.green("Q"));
+                                            Text.green("L"), Text.green("R"));
+
+    private String mainMenuOptionAdmin = String.format("""
+                         . - importer enregistrements   . - exporter enregistrements   . - lister tous les utilisateurs
+                         """.replaceAll("\\.", "%s"), Text.green("IMP"), Text.green("EXP"),
+                                                                      Text.green("LU"));
+
+    private String mainMenuOptionUser = String.format("""
+                         . - prendre présence pour activités   . - voir toutes les activités dans le système  
+                         """.replaceAll("\\.", "%s"), Text.green("PR"), Text.green("V"));
+
+    private String mainMenuFooter = String.format("""
+                         . - changer compte      . - quitter
+                         """.replaceAll("\\.", "%s"), Text.green("C"), Text.green("Q"));
+
+    private String mainMenuAdmin = mainMenuHeader + mainMenuOptionAdmin + mainMenuFooter;
+
+    private String mainMenuUser = mainMenuHeader + mainMenuOptionUser + mainMenuFooter;
 
     private String addNewRecordTips = """
-                         Veuillez saisir nouveau record au format suivant:
+                         Veuillez saisir nouvel enregistrement au format suivant:
                          date(jj/mm/aaaa),heure de début(hh:mm),heure de fin(hh:mm),nom d'activité,localisation,type d'activité(séance/repos/logement)
-                         example:
+                         exemple:
                          30/12/2022,09:00,10:00,Python Course,Technifutur,seance
                          """;
 
 
     String searchRecordTips = """
-                         Veuillez saisir une date de record au format suivant:
+                         Veuillez saisir une date de enregistrement au format suivant:
                          date(jj/mm/aaaa)
-                         example:
+                         exemple:
                          30/12/2022
                          """;
 
+    String importDataTips = """
+                        veuillez saisir le chemin de fichier (.csv) :
+                        * par défaut : src/be/technifutur/jcalendar/data/testData.csv
+                        """;
+
+    String exportDataTips = """
+                        veuillez saisir le chemin pour stocker le fichier (.csv) :
+                        * par exemple : src/be/technifutur/jcalendar/data/saveData.csv
+                        """;
+
+    String setPresenceTips = """
+                        veuillez saisir indices d'activité et oui ou non représentant la présence au format suivant:
+                        indices d'activité indiqués dans la liste au-dessus (nombre),présence(oui/non)
+                        exemple: 
+                        2,oui,3,non,5,oui
+                        """;
     String ruleWelcomeMenu = "admin" +  // admin"
                              "|([a-zA-Z]+," +  // first name
                              "[a-zA-Z]+" +  // last name
                              "|([nq])?)"  // command
                              ;
 
-    String ruleMainMenu = "p|s|jo|se|mo|a|d|l|r|c|q";
+    String ruleMainMenu = "p|s|jo|se|mo|a|d|l|r|c|q|imp|exp|lu|pr|v";
 
     String ruleRegistrationMenu = "[a-zA-Z]+," +  // first name
                                   "[a-zA-Z]+" +  // last name
@@ -95,7 +127,8 @@ public class JcalendarController {
                           "(20|21|22|23|[01]\\d|\\d)((:[0-5]\\d){1,2})," +  // end time (HH:mm)
                           "\\S[\\w ]*," +  // activity name
                           "\\S[\\w ]*," +  // location
-                          "(seance|repos|logement)"  // activity type
+                          "(seance|repos|logement)," +  // activity type
+                          "\\d+(.\\d|.\\d\\d)?"
                           ;
 
     public JcalendarController(JcalendarModel calendar, int daysToMinusOrPlus, int weeksToMinusOrPlus, int monthsToMinusOrPlus) {
@@ -109,7 +142,8 @@ public class JcalendarController {
         this(calendar, 0, 0, 0);
     }
 
-    public void start() throws JcalendarException {
+    public void start() {
+        deserializer();
         System.out.println(logo);
         welcomePage();
     }
@@ -119,22 +153,25 @@ public class JcalendarController {
         weeksToMinusOrPlus = 0;
         monthsToMinusOrPlus = 0;
         String request = "";
-        while (!request.equalsIgnoreCase("q")) {
+        while (true) {
             try {
                 request = listenRequestWelcomeMenu();
                 if (request.contains(",")) {
                     String[] in = request.split(",");
                     personLogin = getPerson(in[0], in[1]);
                     viewWeek.displayWeekSchedule(personLogin, weeksToMinusOrPlus);
-                    listenRequestForWeekMainMenu(input.read(mainMenu), true, false);
+                    listenRequestForWeekMainMenu(input.read(mainMenuUser), true, false);
                 }  else if (request.equalsIgnoreCase("admin")) {
                     viewWeek.displayWeekSchedule(calendar, monthsToMinusOrPlus);
-                    listenRequestForWeekMainMenu(input.read(mainMenu), true, true);
+                    listenRequestForWeekMainMenu(input.read(mainMenuAdmin), true, true);
                 } else if (request.equalsIgnoreCase("n")) {
                     String[] userName = registerPerson(input.read(addNewUserTips));
                     personLogin = getPerson(userName[0], userName[1]);
                     viewWeek.displayWeekSchedule(personLogin, weeksToMinusOrPlus);
-                    listenRequestForWeekMainMenu(input.read(mainMenu), true, false);
+                    listenRequestForWeekMainMenu(input.read(mainMenuUser), true, false);
+                } else if (request.equalsIgnoreCase("q")) {
+                    serializer();
+                    System.exit(0);
                 }
             } catch (IllegalArgumentException | JcalendarException e) {
                 System.out.println(e.getMessage());
@@ -153,7 +190,8 @@ public class JcalendarController {
 
     private void listenRequestForDayMainMenu(String request, boolean reset, boolean isAdmin) throws JcalendarTimeConflictException {
         if (reset) {daysToMinusOrPlus = weeksToMinusOrPlus = monthsToMinusOrPlus = 0;}
-        while (!request.equalsIgnoreCase("q")){
+        String mainMenu = isAdmin ? mainMenuAdmin : mainMenuUser;
+        while (true){
             if (isInputCorrect(ruleMainMenu, request)) {
                 try {
                     if (request.equalsIgnoreCase("P")) {
@@ -211,8 +249,27 @@ public class JcalendarController {
                         listenRequestForDayMainMenu(input.read(mainMenu), false, isAdmin);
                     } else if (request.equalsIgnoreCase("C")) {
                         welcomePage();
+                    } else if (request.equalsIgnoreCase("q")) {
+                        serializer();
+                        System.exit(0);
                     }
-                } catch (IllegalArgumentException | JcalendarException e) {
+                    if (isAdmin) {
+                        if (request.equalsIgnoreCase("IMP")) {
+                            importData(input.read(importDataTips));
+                        } else if (request.equalsIgnoreCase("EXP")) {
+                            exportData(input.read(exportDataTips));
+                        } else if (request.equalsIgnoreCase("LU")) {
+                            printPersonRegistrated();
+                        }
+                    } else {
+                        if (request.equalsIgnoreCase("PR")) {
+                            printAllRecords(false);
+                            setPresencePage(input.read(setPresenceTips));
+                        } else if (request.equalsIgnoreCase("V")) {
+                            printAllRecords(true);
+                        }
+                    }
+                } catch (IllegalArgumentException | JcalendarException | IOException e) {
                     System.out.println(e.getMessage());
                 }
             }
@@ -228,7 +285,8 @@ public class JcalendarController {
 
     private void listenRequestForWeekMainMenu(String request, boolean reset, boolean isAdmin) throws JcalendarException {
         if (reset) {daysToMinusOrPlus = weeksToMinusOrPlus = monthsToMinusOrPlus = 0;}
-        while (!request.equalsIgnoreCase("q")){
+        String mainMenu = isAdmin ? mainMenuAdmin : mainMenuUser;
+        while (true){
             if (isInputCorrect(ruleMainMenu, request)) {
                 try {
                     if (request.equalsIgnoreCase("P")) {
@@ -286,8 +344,27 @@ public class JcalendarController {
                         listenRequestForWeekMainMenu(input.read(mainMenu), false, isAdmin);
                     } else if (request.equalsIgnoreCase("C")) {
                         welcomePage();
+                    } else if (request.equalsIgnoreCase("q")) {
+                        serializer();
+                        System.exit(0);
                     }
-                } catch (IllegalArgumentException | JcalendarException e) {
+                    if (isAdmin) {
+                        if (request.equalsIgnoreCase("IMP")) {
+                            importData(input.read(importDataTips));
+                        } else if (request.equalsIgnoreCase("EXP")) {
+                            exportData(input.read(exportDataTips));
+                        } else if (request.equalsIgnoreCase("LU")) {
+                            printPersonRegistrated();
+                        }
+                    } else {
+                        if (request.equalsIgnoreCase("PR")) {
+                            printAllRecords(false);
+                            setPresencePage(input.read(setPresenceTips));
+                        } else if (request.equalsIgnoreCase("V")) {
+                            printAllRecords(true);
+                        }
+                    }
+                } catch (IllegalArgumentException | JcalendarException | IOException e) {
                     System.out.println(e.getMessage());
                 }
             }
@@ -303,7 +380,8 @@ public class JcalendarController {
 
     private void listenRequestForMonthMainMenu(String request, boolean reset, boolean isAdmin) throws JcalendarException {
         if (reset) {daysToMinusOrPlus = weeksToMinusOrPlus = monthsToMinusOrPlus = 0;}
-        while (!request.equalsIgnoreCase("q")){
+        String mainMenu = isAdmin ? mainMenuAdmin : mainMenuUser;
+        while (true){
             if (isInputCorrect(ruleMainMenu, request)) {
                 try {
                     if (request.equalsIgnoreCase("P")) {
@@ -361,8 +439,27 @@ public class JcalendarController {
                         listenRequestForMonthMainMenu(input.read(mainMenu), false, isAdmin);
                     } else if (request.equalsIgnoreCase("C")) {
                         welcomePage();
+                    } else if (request.equalsIgnoreCase("q")) {
+                        serializer();
+                        System.exit(0);
                     }
-                } catch (IllegalArgumentException | JcalendarException e) {
+                    if (isAdmin) {
+                        if (request.equalsIgnoreCase("IMP")) {
+                            importData(input.read(importDataTips));
+                        } else if (request.equalsIgnoreCase("EXP")) {
+                            exportData(input.read(exportDataTips));
+                        } else if (request.equalsIgnoreCase("LU")) {
+                            printPersonRegistrated();
+                        }
+                    } else {
+                        if (request.equalsIgnoreCase("PR")) {
+                            printAllRecords(false);
+                            setPresencePage(input.read(setPresenceTips));
+                        } else if (request.equalsIgnoreCase("V")) {
+                            printAllRecords(true);
+                        }
+                    }
+                } catch (IllegalArgumentException | JcalendarException | IOException e) {
                     System.out.println(e.getMessage());
                 }
             }
@@ -389,15 +486,16 @@ public class JcalendarController {
     private void addRecord(String read, boolean isAdmin) throws JcalendarTimeConflictException, JcalendarNoRecordException {
         if (isInputCorrect(ruleActivity, read)) {
             String[] input = read.split(",");
-            LocalDate date = Jcalendar.stringToLocalDate(input[0]);
-            LocalTime startTime = Jcalendar.stringToLocalTime(input[1]);
-            LocalTime endTime = Jcalendar.stringToLocalTime(input[2]);
+            LocalDate date = jcalendar.stringToLocalDate(input[0]);
+            LocalTime startTime = jcalendar.stringToLocalTime(input[1]);
+            LocalTime endTime = jcalendar.stringToLocalTime(input[2]);
             String activityTitle = input[3];
             String location = input[4];
             ActivityType activityType = ActivityType.valueOf(input[5].toUpperCase());
+            double tarif = Double.valueOf(input[6]);
             if (isAdmin) {
-                calendar.addRecord(new Activity(date, startTime, endTime, activityTitle, location, activityType));
-                System.out.println(Text.green("\nActivité est enregistré dans le système !\n"));
+                calendar.addRecord(new Activity(date, startTime, endTime, activityTitle, location, activityType, tarif));
+                System.out.println(Text.green("\nActivité est enregistrée dans le système !\n"));
             } else {
                 Optional<SortedSet<Activity>> allActivityInTheDay = calendar.getRecord(date);
                 if (allActivityInTheDay.isPresent()) {
@@ -408,9 +506,10 @@ public class JcalendarController {
                             activity.endTime.equals(endTime) &&
                             activity.activityTitle.equals(activityTitle) &&
                             activity.location.equals(location) &&
-                            activity.type.equals(activityType)) {
+                            activity.type.equals(activityType) &&
+                            activity.tarif.equals(tarif)) {
                             personLogin.addActivity(activity);
-                            System.out.println(Text.green("\nActivité est enregistré dans votre compte !\n"));
+                            System.out.println(Text.green("\nActivité est enregistrée dans votre compte !\n"));
                             isNotFound = false;
                         }
                     }
@@ -418,15 +517,15 @@ public class JcalendarController {
                         throw new JcalendarNoRecordException(Text.red("\ncette activité n'existe pas dans le système !\n"));
                     }
                 } else {
-                    throw new JcalendarNoRecordException(Text.red("\nauncune activité trouvée dans cette date !\n"));
+                    throw new JcalendarNoRecordException(Text.red("\nauncune activité trouvée à cette date !\n"));
                 }
             }
         } else {
-            throw new IllegalArgumentException(Text.red("\nformat ou valeur d'entré est invalid !\n"));
+            throw new IllegalArgumentException(Text.red("\nformat ou valeur d'entrée est invalide !\n"));
         }
     }
 
-    private void deleteRecord(String read, boolean isAdmin) throws JcalendarNoRecordException {
+    private void deleteRecord(String read, boolean isAdmin) throws JcalendarNoRecordException, JcalendarTimeConflictException {
         if (isInputCorrect(ruleActivity, read)) {
             String[] input = read.split(",");
             if (isAdmin) {
@@ -437,31 +536,48 @@ public class JcalendarController {
                 System.out.println(Text.green("\nActivité est supprimée de votre compte !\n"));
             }
         } else {
-            throw new IllegalArgumentException(Text.red("\nformat ou valeur d'entré est invalid !\n"));
+            throw new IllegalArgumentException(Text.red("\nformat ou valeur d'entrée est invalide !\n"));
         }
     }
 
-    private void printAllRecords(boolean isAdmin) {
-        int count = 0;
-        Map<LocalDate, SortedSet<Activity>> allRecords;
-        if (isAdmin) {
-            allRecords = calendar.getAllRecords();
-        } else {
-            allRecords = personLogin.getAllActivities();
-        }
-        for (Map.Entry<LocalDate, SortedSet<Activity>> entry : allRecords.entrySet()) {
-            SortedSet<Activity> recordsInOneDate = entry.getValue();
-            for (int i = 0; i < recordsInOneDate.size(); i++) {
-                System.out.printf("%s\n", recordsInOneDate.toArray()[i]);
-                count++;
+    private void setPresencePage(String read) {
+        String[] input = read.split(",");
+        Activity[] personActivities = personLogin.getPresenceList().keySet().toArray(new Activity[0]);
+        Activity activity;
+        try {
+            for (int i = 0; i < input.length / 2; i++) {
+                activity = personActivities[Integer.parseInt(input[i*2])-1];
+                boolean isPrence;
+                if (input[i*2+1].equalsIgnoreCase("oui")) {
+                    isPrence = true;
+                } else if (input[i*2+1].equalsIgnoreCase("non")) {
+                    isPrence = false;
+                } else {
+                    throw new IllegalArgumentException(Text.red("\nformat d'entrée est invalide !\n"));
+                }
+                personLogin.setPresence(activity, isPrence);
             }
+        } catch (NumberFormatException e) {
+            throw new RuntimeException(e);
         }
-        System.out.printf(Text.green("%s activitie(s) trouvée(s)\n\n"), count);
     }
 
-    private void findRecord(String read, boolean isAdmin) throws JcalendarNoRecordException {
+    private void printAllRecords(boolean isAdmin) throws JcalendarTimeConflictException {
+        int count = 0;
+        if (isAdmin) {
+            calendar.getAllRecordsAsList(true);
+            count = calendar.getRecordsNumber();
+        } else {
+            personLogin.getAllRecordsAsList(true);
+            count = personLogin.getRecordsNumber();
+            System.out.println("\nFrais totaux: " + personLogin.getTotalFee() + "\n");
+        }
+        System.out.printf(Text.green("%s activité(s) trouvée(s)\n\n"), count);
+    }
+
+    private void findRecord(String read, boolean isAdmin) throws JcalendarNoRecordException, JcalendarTimeConflictException {
         if (isInputCorrect(ruleDate, read)) {
-            LocalDate date = Jcalendar.stringToLocalDate(read);
+            LocalDate date = jcalendar.stringToLocalDate(read);
             if (isAdmin) {
                 Optional<SortedSet<Activity>> activities = calendar.getRecord(date);
                 if (activities.isPresent()) {
@@ -484,7 +600,7 @@ public class JcalendarController {
                 }
             }
         } else {
-            throw new IllegalArgumentException(Text.red("\nformat ou valeur d'entré est invalid !\n"));
+            throw new IllegalArgumentException(Text.red("\nformat ou valeur d'entrée est invalide !\n"));
         }
     }
 
@@ -513,35 +629,102 @@ public class JcalendarController {
             } else if (input.length == 4) {
                 addPerson(input[0], input[1], Club.valueOf(input[2].toUpperCase()), Integer.valueOf(input[3]));
             }
-            System.out.println(Text.green("\ninscription a été effectué avec succès !\n"));
+            System.out.println(Text.green("\ninscription a été effectuée avec succès !\n"));
             return Arrays.copyOfRange(input, 0, 2);
         } else {
-            throw new IllegalArgumentException(Text.red("\nformat ou valeur d'entré est invalid !\n"));
+            throw new IllegalArgumentException(Text.red("\nformat ou valeur d'entrée est invalide !\n"));
         }
     }
 
-    public void load() throws JcalendarTimeConflictException {
-        JcalendarModel testModel = new JcalendarModel();
+    private void printPersonRegistrated() {
+        for (Person person : personList) {
+            System.out.printf("%s,%s\n", person.getPrenom(), person.getNom());
+        }
+        System.out.printf(Text.green("%s utilisateur(s) trouvé(s) !\n"), personList.size());
+    }
 
-        testModel.addRecord(new Activity(Jcalendar.stringToLocalDate("30/12/2022"), Jcalendar.stringToLocalTime("09:00"), Jcalendar.stringToLocalTime("10:00"), "Python Course", "Technifutur", ActivityType.SEANCE));
-        testModel.addRecord(new Activity(Jcalendar.stringToLocalDate("30/12/2022"), Jcalendar.stringToLocalTime("10:30"), Jcalendar.stringToLocalTime("11:30"), "Java Course", "Technipaste", ActivityType.REPOS));
-        testModel.addRecord(new Activity(Jcalendar.stringToLocalDate("31/12/2022"), Jcalendar.stringToLocalTime("09:00"), Jcalendar.stringToLocalTime("10:00"), "HTML Course", "Technifutur", ActivityType.SEANCE));
-        testModel.addRecord(new Activity(Jcalendar.stringToLocalDate("31/12/2022"), Jcalendar.stringToLocalTime("10:30"), Jcalendar.stringToLocalTime("11:30"), "JavaScript Course", "Technifutur", ActivityType.SEANCE));
-        testModel.addRecord(new Activity(Jcalendar.stringToLocalDate("31/12/2022"), Jcalendar.stringToLocalTime("11:30"), Jcalendar.stringToLocalTime("12:30"), "Python Course", "Technipaste", ActivityType.REPOS));
-        testModel.addRecord(new Activity(Jcalendar.stringToLocalDate("02/01/2023"), Jcalendar.stringToLocalTime("09:00"), Jcalendar.stringToLocalTime("10:00"), "Java Course", "Technifutur", ActivityType.SEANCE));
-        testModel.addRecord(new Activity(Jcalendar.stringToLocalDate("02/01/2023"), Jcalendar.stringToLocalTime("14:00"), Jcalendar.stringToLocalTime("15:00"), "Computer Science Course", "Technifutur", ActivityType.SEANCE));
-        testModel.addRecord(new Activity(Jcalendar.stringToLocalDate("02/01/2023"), Jcalendar.stringToLocalTime("10:30"), Jcalendar.stringToLocalTime("11:30"), "JavaScript Course", "Technifutur", ActivityType.SEANCE));
-        testModel.addRecord(new Activity(Jcalendar.stringToLocalDate("03/01/2023"), Jcalendar.stringToLocalTime("09:30"), Jcalendar.stringToLocalTime("11:30"), "Java Course", "Technipaste", ActivityType.REPOS));
-        testModel.addRecord(new Activity(Jcalendar.stringToLocalDate("03/01/2023"), Jcalendar.stringToLocalTime("13:30"), Jcalendar.stringToLocalTime("15:30"), "Python Course", "Technipaste", ActivityType.REPOS));
-        testModel.addRecord(new Activity(Jcalendar.stringToLocalDate("03/01/2023"), Jcalendar.stringToLocalTime("15:30"), Jcalendar.stringToLocalTime("17:30"), "C++ Course", "Technipaste", ActivityType.REPOS));
-        testModel.addRecord(new Activity(Jcalendar.stringToLocalDate("04/01/2023"), Jcalendar.stringToLocalTime("09:00"), Jcalendar.stringToLocalTime("10:30"), ".Net Course", "Technipaste", ActivityType.REPOS));
-        testModel.addRecord(new Activity(Jcalendar.stringToLocalDate("04/01/2023"), Jcalendar.stringToLocalTime("10:30"), Jcalendar.stringToLocalTime("12:00"), "TypeScript course", "Technipaste", ActivityType.REPOS));
-        testModel.addRecord(new Activity(Jcalendar.stringToLocalDate("04/01/2023"), Jcalendar.stringToLocalTime("13:30"), Jcalendar.stringToLocalTime("14:30"), "JavaScript Course", "Technifutur", ActivityType.SEANCE));
-        testModel.addRecord(new Activity(Jcalendar.stringToLocalDate("04/01/2023"), Jcalendar.stringToLocalTime("14:30"), Jcalendar.stringToLocalTime("15:30"), "Java Course", "Technipaste", ActivityType.REPOS));
-        testModel.addRecord(new Activity(Jcalendar.stringToLocalDate("05/01/2023"), Jcalendar.stringToLocalTime("09:00"), Jcalendar.stringToLocalTime("10:30"), ".Net Course", "Technipaste", ActivityType.REPOS));
-        testModel.addRecord(new Activity(Jcalendar.stringToLocalDate("05/01/2023"), Jcalendar.stringToLocalTime("11:30"), Jcalendar.stringToLocalTime("12:00"), "TypeScript course", "Technipaste", ActivityType.REPOS));
-        testModel.addRecord(new Activity(Jcalendar.stringToLocalDate("05/01/2023"), Jcalendar.stringToLocalTime("13:30"), Jcalendar.stringToLocalTime("14:30"), "JavaScript Course", "Technifutur", ActivityType.SEANCE));
-        testModel.addRecord(new Activity(Jcalendar.stringToLocalDate("05/01/2023"), Jcalendar.stringToLocalTime("16:00"), Jcalendar.stringToLocalTime("17:30"), "Java Course", "Technipaste", ActivityType.REPOS));
+    public void importData(String path) throws JcalendarTimeConflictException, IOException {
+        String line = "";
+        try {
+            BufferedReader br = new BufferedReader(new FileReader(path));
+            while ((line = br.readLine()) != null)
+            {
+                String[] record = line.split(",");
+                calendar.addRecord(new Activity(jcalendar.stringToLocalDate(record[0]),
+                        jcalendar.stringToLocalTime(record[1]),
+                        jcalendar.stringToLocalTime(record[2]),
+                        record[3],
+                        record[4],
+                        ActivityType.valueOf(record[5].toUpperCase()),
+                        Double.valueOf(record[6].equals("") ? String.valueOf(0) : record[6])));
+            }
+            System.out.println(Text.green("\nchargement de données a été effectué avec succès !\n"));
+        } catch (IOException e) {
+            throw new IllegalArgumentException(Text.red("chemin d'entrée est invalide ou n'existe pas !"));
+        }
+    }
 
+    public void exportData(String path) throws IOException {
+        List<Activity> allRecords = calendar.getAllRecordsAsList(false);
+        FileWriter csvWriter = new FileWriter(path);
+        for (Activity activity : allRecords) {
+            String record = jcalendar.localDateToString(activity.getDate()) + "," +
+                            jcalendar.localTimeToString(activity.getStartTime()) + "," +
+                            jcalendar.localTimeToString(activity.getEndTime()) + "," +
+                            activity.getActivityTitle() + "," +
+                            activity.getLocation() + "," +
+                            activity.getType().toString().toLowerCase() + "," +
+                            activity.getTarif() + "\n"
+                            ;
+            csvWriter.append(record);
+        }
+        csvWriter.flush();
+        csvWriter.close();
+        System.out.println(Text.green("\nexportation de données a été effectuée avec succès !\n"));
+    }
+
+    private void serializer() {
+        ObjectOutputStream oos = null;
+        try {
+            FileOutputStream file = new FileOutputStream("checkpoint.ser");
+            SerialisationContainer checkpoint = new SerialisationContainer(calendar.getAllRecords(), personList);
+            oos = new ObjectOutputStream(file);
+            oos.writeObject(checkpoint);
+            oos.flush();
+        } catch (IOException e) {
+            e.printStackTrace();
+        } finally {
+            try {
+                if (oos != null) {
+                    oos.flush();
+                    oos.close();
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    private void deserializer() {
+        ObjectInputStream ois = null;
+        try {
+            FileInputStream file = new FileInputStream("checkpoint.ser");
+            ois = new ObjectInputStream(file);
+            SerialisationContainer checkpoint  = (SerialisationContainer) ois.readObject();
+            calendar.setRecordList(checkpoint.getRecordList());
+            personList = checkpoint.getPersonList();
+        } catch (IOException e) {
+            ;
+        } catch (ClassNotFoundException e) {
+            e.printStackTrace();
+        } finally {
+            try {
+                if (ois != null) {
+                    ois.close();
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
     }
 }

@@ -1,23 +1,26 @@
 package be.technifutur.jcalendar;
 
+import java.io.Serializable;
 import java.time.LocalDate;
 import java.time.LocalTime;
 
-public class Activity implements Comparable<Activity>{
+public class Activity implements Comparable<Activity>, Serializable {
     LocalDate date;
     LocalTime startTime;
     LocalTime endTime;
     String activityTitle;
     String location;
     ActivityType type;
+    Double tarif;
 
-    public Activity(LocalDate date, LocalTime startTime, LocalTime endTime, String activityTitle, String location, ActivityType type) {
+    public Activity(LocalDate date, LocalTime startTime, LocalTime endTime, String activityTitle, String location, ActivityType type, double tarif) {
         this.date = date;
         this.startTime = startTime;
         this.endTime = endTime;
         this.activityTitle = activityTitle;
         this.location = location;
         this.type = type;
+        this.tarif = tarif;
     }
 
     public LocalDate getDate() {
@@ -68,6 +71,14 @@ public class Activity implements Comparable<Activity>{
         this.type = type;
     }
 
+    public Double getTarif() {
+        return tarif;
+    }
+
+    public void setTarif(Double tarif) {
+        this.tarif = tarif;
+    }
+
     @Override
     public String toString() {
         return startTime.toString() + "-" +
@@ -75,8 +86,9 @@ public class Activity implements Comparable<Activity>{
                date.toString() + ", " +
                "Activité: " + activityTitle + ", " +
                "Local: " + location + "," +
-               "Type: " + type.toString().toLowerCase() +"\n"
-                ;
+               "Type: " + type.toString().toLowerCase() + "," +
+               "Tarif: " + tarif +"\n"
+               ;
     }
 
     public int compareTo(Activity a2) {
@@ -91,6 +103,9 @@ public class Activity implements Comparable<Activity>{
                         compare = this.location.compareTo(a2.location);
                         if (compare == 0) {
                             compare = this.type.compareTo(a2.type);
+                            if (compare == 0) {
+                                compare = this.tarif.compareTo(a2.tarif);
+                            }
                         }
                     }
                 }

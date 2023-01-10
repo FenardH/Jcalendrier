@@ -1,23 +1,25 @@
 package be.technifutur.jcalendar;
 
+import java.io.Serializable;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.*;
 
-import static be.technifutur.jcalendar.Jcalendar.today;
-
-public class JcalendarModel {
+public class JcalendarModel implements Serializable {
     private LocalDate date;
     private String day;
-    static Map<LocalDate, SortedSet<Activity>> recordList = new HashMap<>();
+    private static Map<LocalDate, SortedSet<Activity>> recordList = new HashMap<>();
+
+    Jcalendar jcalendar = new Jcalendar();
+    LocalDate today = jcalendar.today;
 
     public JcalendarModel(LocalDate date) throws JcalendarTimeConflictException {
         this.date = date;
-        this.day = Jcalendar.getDayFromDate(date);
+        this.day = jcalendar.getDayFromDate(date);
     }
 
     public JcalendarModel() throws JcalendarTimeConflictException {
-        this(today);
+        this(new Jcalendar().today);
     }
 
     public LocalDate getDate() {
@@ -38,7 +40,7 @@ public class JcalendarModel {
 
     public void addRecord(Activity activity) throws JcalendarTimeConflictException {
         if (isTimeConflict(activity.getDate(), activity.getStartTime())) {
-            throw new JcalendarTimeConflictException("Les horaires entrés sont conflictuel !");
+            throw new JcalendarTimeConflictException(Text.red("horaires encodés sont conflictuels !"));
         } else {
             recordList.computeIfAbsent(activity.getDate(), k -> new TreeSet<>()).add(activity);
         }
@@ -79,9 +81,9 @@ public class JcalendarModel {
     }
 
     public void deleteRecord(String d, String st, String et, String activityTitle, String location, String ate) throws JcalendarNoRecordException {
-        LocalDate date = Jcalendar.stringToLocalDate(d);
-        LocalTime startTime = Jcalendar.stringToLocalTime(st);
-        LocalTime endTime = Jcalendar.stringToLocalTime(et);
+        LocalDate date = jcalendar.stringToLocalDate(d);
+        LocalTime startTime = jcalendar.stringToLocalTime(st);
+        LocalTime endTime = jcalendar.stringToLocalTime(et);
         ActivityType activityType = ActivityType.valueOf(ate.toUpperCase());
         if (recordList.containsKey(date)) {
             SortedSet<Activity> recordsInOneDate = recordList.get(date);
@@ -101,10 +103,10 @@ public class JcalendarModel {
                     recordList.remove(date);
                 }
             }else {
-                throw new JcalendarNoRecordException("\n1Record n'existe pas !\n");
+                throw new JcalendarNoRecordException(Text.red("\nenregistrement n'existe pas !\n"));
             }
         } else {
-            throw new JcalendarNoRecordException("\nRecord n'existe pas !\n");
+            throw new JcalendarNoRecordException(Text.red("\nenregistrement n'existe pas !\n"));
         }
     }
 
@@ -117,8 +119,34 @@ public class JcalendarModel {
         }
     }
 
+    public int getRecordsNumber() {
+        return recordList.values().stream()
+                                  .mapToInt(SortedSet::size)
+                                  .sum();
+    }
+
     public Map<LocalDate, SortedSet<Activity>> getAllRecords() {
         return recordList;
+    }
+
+    public void setRecordList(Map<LocalDate, SortedSet<Activity>> activityList) {
+        recordList = activityList;
+    }
+
+    public List<Activity> getAllRecordsAsList(boolean isPrint) {
+        int count = 0;
+        List<Activity> allRecords = new ArrayList<>();
+        for (Map.Entry<LocalDate, SortedSet<Activity>> entry : recordList.entrySet()) {
+            SortedSet<Activity> recordsInOneDate = entry.getValue();
+            for (int i = 0; i < recordsInOneDate.size(); i++) {
+                if (isPrint) {
+                    System.out.printf("[%s] %s\n", count + 1, recordsInOneDate.toArray()[i]);
+                    count++;
+                }
+                allRecords.add((Activity) recordsInOneDate.toArray()[i]);
+            }
+        }
+        return allRecords;
     }
 
     private boolean isTimeConflict(LocalDate date, LocalTime strTime) {
@@ -162,29 +190,4 @@ public class JcalendarModel {
         }
         return date;
     }
-
-        /*public static void main(String[] args) throws JcalendarTimeConflictException {
-            JcalendarModel m = new JcalendarModel(Jcalendar.stringToLocalDate("30/12/2022"));
-            JcalendarModel.addRecord(new Activity(Jcalendar.stringToLocalDate("30/12/2022"), Jcalendar.stringToLocalTime("09:00"), Jcalendar.stringToLocalTime("10:00"), "Java Course", "Technifutur", ActivityType.SEANCE, true));
-            JcalendarModel.addRecord(new Activity(Jcalendar.stringToLocalDate("30/12/2022"), Jcalendar.stringToLocalTime("10:30"), Jcalendar.stringToLocalTime("11:30"), "Java Course", "Technipaste", ActivityType.REPOS, true));
-            JcalendarModel.addRecord(new Activity(Jcalendar.stringToLocalDate("31/12/2022"), Jcalendar.stringToLocalTime("09:00"), Jcalendar.stringToLocalTime("10:00"), "Java Course", "Technifutur", ActivityType.SEANCE, true));
-            JcalendarModel.addRecord(new Activity(Jcalendar.stringToLocalDate("31/12/2022"), Jcalendar.stringToLocalTime("10:00"), Jcalendar.stringToLocalTime("10:30"), "JavaScript Course", "Technifutur", ActivityType.SEANCE, true));
-            JcalendarModel.addRecord(new Activity(Jcalendar.stringToLocalDate("31/12/2022"), Jcalendar.stringToLocalTime("10:30"), Jcalendar.stringToLocalTime("11:30"), "Java Course", "Technipaste", ActivityType.REPOS, true));
-            JcalendarModel.addRecord(new Activity(Jcalendar.stringToLocalDate("02/01/2023"), Jcalendar.stringToLocalTime("09:00"), Jcalendar.stringToLocalTime("10:00"), "Java Course", "Technifutur", ActivityType.SEANCE, true));
-            JcalendarModel.addRecord(new Activity(Jcalendar.stringToLocalDate("03/01/2023"), Jcalendar.stringToLocalTime("10:30"), Jcalendar.stringToLocalTime("11:30"), "Java Course", "Technipaste", ActivityType.REPOS, true));
-            JcalendarModel.addRecord(new Activity(Jcalendar.stringToLocalDate("02/01/2023"), Jcalendar.stringToLocalTime("14:00"), Jcalendar.stringToLocalTime("15:00"), "Java Course", "Technifutur", ActivityType.SEANCE, true));
-            JcalendarModel.addRecord(new Activity(Jcalendar.stringToLocalDate("02/01/2023"), Jcalendar.stringToLocalTime("10:00"), Jcalendar.stringToLocalTime("10:30"), "JavaScript Course", "Technifutur", ActivityType.SEANCE, true));
-            JcalendarModel.addRecord(new Activity(Jcalendar.stringToLocalDate("02/01/2023"), Jcalendar.stringToLocalTime("10:30"), Jcalendar.stringToLocalTime("11:30"), "Java Course", "Technipaste", ActivityType.REPOS, true));
-
-            System.out.println(JcalendarModel.isTimeConflict(Jcalendar.stringToLocalDate("30/12/2022"), Jcalendar.stringToLocalTime("09:30")));
-            System.out.println("------------");
-            System.out.println(m.getRecord(ActivityType.SEANCE));
-            System.out.println("------------");
-            System.out.println(m.getRecord("Technifutur"));
-            System.out.println("------------");
-            System.out.println(m.getRecordsNumber(Jcalendar.stringToLocalDate("31/12/2022")));
-            System.out.println("------------");
-            System.out.println(m.getAllRecords());
-            System.out.println("------------");
-    }*/
 }

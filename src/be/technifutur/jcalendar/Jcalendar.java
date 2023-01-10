@@ -1,5 +1,6 @@
 package be.technifutur.jcalendar;
 
+import java.io.Serializable;
 import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.LocalTime;
@@ -7,27 +8,26 @@ import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Locale;
 import java.util.stream.Stream;
 
 import static java.util.stream.Collectors.toList;
 
-public class Jcalendar {
-    public static final LocalDate today = LocalDate.now();
-    public static final String todayInString = localDateToString(today);
-    public static final String[] weekDays = {"Lundi", "Mardi", "Mercredi", "Jeudi", "Vendredi", "Samedi", "Dimanche"};
-    public static final String[] months = {"Janvier", "Février", "Mars", "Avril", "Mai", "Juin",
-                                           "Juillet", "Août", "Septembre", "Octobre", "Novembre", "Décembre"};
-    public static List<LocalDate> wd = getWholeWeek(today);
-    public static String[] currentWeekDays = convertDateFormatForOneWeek(wd);
+public class Jcalendar implements Serializable {
+    public final LocalDate today = LocalDate.now();
+    public final String todayInString = localDateToString(today);
+    public final String[] weekDays = {"Lundi", "Mardi", "Mercredi", "Jeudi", "Vendredi", "Samedi", "Dimanche"};
+    public final String[] months = {"Janvier", "Février", "Mars", "Avril", "Mai", "Juin",
+                                    "Juillet", "Août", "Septembre", "Octobre", "Novembre", "Décembre"};
+    public List<LocalDate> wd = getWholeWeek(today);
+    public String[] currentWeekDays = convertDateFormatForOneWeek(wd);
 
-    public static List<LocalDate> getWholeWeek(LocalDate day) {
+    public List<LocalDate> getWholeWeek(LocalDate day) {
         return Arrays.stream(DayOfWeek.values())
                      .map(day::with)
                      .collect(toList());
     }
 
-    public static List<LocalDate> getWholeMonth(LocalDate day) {
+    public List<LocalDate> getWholeMonth(LocalDate day) {
         List<LocalDate> monthDays = new ArrayList<>();
 
         LocalDate date = day.withDayOfMonth(1);
@@ -41,7 +41,7 @@ public class Jcalendar {
         return monthDays;
     }
 
-    public static List<LocalDate> getWholeMonthExtended(List<LocalDate> monthDays) throws JcalendarException {
+    public List<LocalDate> getWholeMonthExtended(List<LocalDate> monthDays) throws JcalendarException {
         List<LocalDate> monthDaysExtended = new ArrayList<>(monthDays);
 
         LocalDate firstDate = monthDaysExtended.get(0);
@@ -70,7 +70,7 @@ public class Jcalendar {
         return monthDaysExtended;
     }
 
-    public static String[] convertDateFormatForOneWeek(List<LocalDate> week) {
+    public String[] convertDateFormatForOneWeek(List<LocalDate> week) {
         String[] weekDaysString = new String[week.size()];
         for (int i = 0; i < week.size(); i++) {
             weekDaysString[i] = localDateToString(week.get(i));
@@ -78,7 +78,7 @@ public class Jcalendar {
         return weekDaysString;
     }
 
-    public static String[] highlightToday(String[] week) {
+    public String[] highlightToday(String[] week) {
         String[] days = Arrays.copyOf(weekDays, 7);
         String[] newWeek = Arrays.copyOf(week, 7);
         for (int i = 0; i < newWeek.length; i++) {
@@ -90,26 +90,26 @@ public class Jcalendar {
         return Stream.concat(Arrays.stream(days), Arrays.stream(newWeek)).toArray(String[]::new);
     }
 
-    public static String localTimeToString(LocalTime time) {
+    public String localTimeToString(LocalTime time) {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("HH:mm");
         return time.format(formatter);
     }
 
-    public static LocalTime stringToLocalTime(String time) {
+    public LocalTime stringToLocalTime(String time) {
         int[] t = Arrays.stream(time.split(":")).mapToInt(Integer::parseInt).toArray();
         return LocalTime.of(t[0], t[1]);
     }
 
-    public static String localDateToString(LocalDate date) {
-        return DateTimeFormatter.ofPattern("dd/MM/yyyy", Locale.FRANCE).format(date);
+    public String localDateToString(LocalDate date) {
+        return DateTimeFormatter.ofPattern("dd/MM/yyyy").format(date);
     }
 
-    public static LocalDate stringToLocalDate(String date) {
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy", Locale.FRANCE);
+    public LocalDate stringToLocalDate(String date) {
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
         return LocalDate.parse(date, formatter);
     }
 
-    public static String[] getPastFutureWeeksDates(int weekNbr) {
+    public String[] getPastFutureWeeksDates(int weekNbr) {
         if (weekNbr < 0) {
             LocalDate dayInPrevousWeek = today.minusWeeks(-weekNbr);
             List<LocalDate> prevousWeek = getWholeWeek(dayInPrevousWeek);
@@ -123,17 +123,17 @@ public class Jcalendar {
         }
     }
 
-    public static String getDayFromDate(String date) throws JcalendarTimeConflictException {
+    public String getDayFromDate(String date) throws JcalendarTimeConflictException {
         String dayEn = String.valueOf(stringToLocalDate(date).getDayOfWeek());
         return weekDayEnToFr(dayEn);
     }
 
-    public static String getDayFromDate(LocalDate date) throws JcalendarTimeConflictException {
+    public String getDayFromDate(LocalDate date) throws JcalendarTimeConflictException {
         String dayEn = String.valueOf(date.getDayOfWeek());
         return weekDayEnToFr(dayEn);
     }
 
-    public static String weekDayEnToFr(String dayEn) throws JcalendarTimeConflictException {
+    public String weekDayEnToFr(String dayEn) throws JcalendarTimeConflictException {
         return switch (dayEn) {
             case "MONDAY" -> weekDays[0];
             case "TUESDAY" -> weekDays[1];
@@ -146,7 +146,7 @@ public class Jcalendar {
         };
     }
 
-    public static String monthEnToFr(String dayEn) throws JcalendarTimeConflictException {
+    public String monthEnToFr(String dayEn) throws JcalendarTimeConflictException {
         return switch (dayEn) {
             case "JANUARY" -> months[0];
             case "FEBRUARY" -> months[1];
@@ -164,7 +164,7 @@ public class Jcalendar {
         };
     }
 
-    public static int getWeekDayIndex(LocalDate date) throws JcalendarException {
+    public int getWeekDayIndex(LocalDate date) throws JcalendarException {
         return switch (String.valueOf(date.getDayOfWeek())) {
             case "MONDAY" -> 0;
             case "TUESDAY" -> 1;
@@ -177,7 +177,7 @@ public class Jcalendar {
         };
     }
 
-    public static int getTimeIntervalIndex(LocalTime aTime) {
+    public int getTimeIntervalIndex(LocalTime aTime) {
         if (isInTimeInterval(aTime, 6, 7)) {
             return 0;
         } else if (isInTimeInterval(aTime, 7, 8)) {
@@ -231,17 +231,7 @@ public class Jcalendar {
         }
     }
 
-    private static boolean isInTimeInterval(LocalTime aTime, int startHour, int endHour) {
+    private boolean isInTimeInterval(LocalTime aTime, int startHour, int endHour) {
         return (aTime.isAfter(LocalTime.of(startHour - 1, 59)) && aTime.isBefore(LocalTime.of(endHour, 0)));
     }
-
-//
-//    public static void main(String[] args) throws JcalendarException {
-//        List<LocalDate> m  = getWholeMonth(today.minusDays(1));
-//        List<LocalDate> mex = getWholeMonthExtended(m);
-//        System.out.println(m.size());
-//        System.out.println(m);
-//        System.out.println(mex.size());
-//        System.out.println(mex);
-//    }
 }

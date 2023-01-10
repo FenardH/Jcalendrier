@@ -1,6 +1,8 @@
 package be.technifutur.jcalendar;
 
-public enum ActivityType {
+import java.io.Serializable;
+
+public enum ActivityType implements Serializable {
     SEANCE, REPOS, LOGEMENT;
 
     private String message;

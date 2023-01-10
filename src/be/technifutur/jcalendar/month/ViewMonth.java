@@ -1,8 +1,6 @@
 package be.technifutur.jcalendar.month;
 
 import be.technifutur.jcalendar.*;
-import static be.technifutur.jcalendar.Jcalendar.*;
-
 import java.time.LocalDate;
 import java.util.Arrays;
 import java.util.List;
@@ -23,21 +21,24 @@ public class ViewMonth{
             +----------------+----------------+----------------+----------------+----------------+----------------+----------------+
             """.replaceAll("\\.","%s");
 
+    Jcalendar jcalendar = new Jcalendar();
+    LocalDate today = jcalendar.today;
+
     public void displayMonthSchedule (JcalendarModel model, int monthsToSubstractOrAdd) throws JcalendarException {
         LocalDate date = model.minusOrPlusMonths(monthsToSubstractOrAdd);
 
         // head
-        String[] weekDays = Jcalendar.weekDays;
+        String[] weekDays = jcalendar.weekDays;
         for (int l = 0; l < 7; l++) {
             weekDays[l] = Text.resizeString(weekDays[l], 9, "left");
         }
         System.out.printf(headFormat, "admin",
-                                      monthEnToFr(date.getMonth().toString()), date.getYear(),
+                                      jcalendar.monthEnToFr(date.getMonth().toString()), date.getYear(),
                                       weekDays[0], weekDays[1], weekDays[2], weekDays[3], weekDays[4], weekDays[5], weekDays[6]);
 
         // body
-        List<LocalDate> monthDays = getWholeMonth(date);
-        List<LocalDate> monthDaysExtended = getWholeMonthExtended(monthDays);
+        List<LocalDate> monthDays = jcalendar.getWholeMonth(date);
+        List<LocalDate> monthDaysExtended = jcalendar.getWholeMonthExtended(monthDays);
 
         int rowNum = monthDaysExtended.size() / 7;
         String[][] tab = new String[rowNum * 2][7];
@@ -60,7 +61,7 @@ public class ViewMonth{
             if (monthDays.contains(dateVal)) {
                 dayModel = new JcalendarModel(dateVal);
                 if (dateVal.equals(today)) {
-                    contentDate = Text.yellow(localDateToString(dateVal));
+                    contentDate = Text.yellow(jcalendar.localDateToString(dateVal));
                     tab[j/7*2][j%7] = "  " + contentDate + "  ";
                     activityNum = dayModel.getRecordsNumber(dateVal);
                     if (activityNum != 0) {
@@ -69,7 +70,7 @@ public class ViewMonth{
                         tab[j/7*2+1][j%7] = contentInfo;
                     }
                 } else {
-                    contentDate = localDateToString(dateVal);
+                    contentDate = jcalendar.localDateToString(dateVal);
                     tab[j/7*2][j%7] = "  " + contentDate + "  ";
                     activityNum = dayModel.getRecordsNumber(dateVal);
                     if (activityNum != 0) {
@@ -79,7 +80,7 @@ public class ViewMonth{
                 }
 
             } else {
-                contentDate = Text.white(localDateToString(dateVal));
+                contentDate = Text.white(jcalendar.localDateToString(dateVal));
                 tab[j/7*2][j%7] = "  " + contentDate + "  ";
             }
         }
@@ -99,17 +100,17 @@ public class ViewMonth{
         }
 
         // head
-        String[] weekDays = Jcalendar.weekDays;
+        String[] weekDays = jcalendar.weekDays;
         for (int l = 0; l < 7; l++) {
             weekDays[l] = Text.resizeString(weekDays[l], 9, "left");
         }
         System.out.printf(headFormat, person.getPrenom() + " " + person.getNom(),
-                                      monthEnToFr(date.getMonth().toString()), date.getYear(),
+                                      jcalendar.monthEnToFr(date.getMonth().toString()), date.getYear(),
                                       weekDays[0], weekDays[1], weekDays[2], weekDays[3], weekDays[4], weekDays[5], weekDays[6]);
 
         // body
-        List<LocalDate> monthDays = getWholeMonth(date);
-        List<LocalDate> monthDaysExtended = getWholeMonthExtended(monthDays);
+        List<LocalDate> monthDays = jcalendar.getWholeMonth(date);
+        List<LocalDate> monthDaysExtended = jcalendar.getWholeMonthExtended(monthDays);
 
         int rowNum = monthDaysExtended.size() / 7;
         String[][] tab = new String[rowNum * 2][7];
@@ -130,7 +131,7 @@ public class ViewMonth{
             dateVal = monthDaysExtended.get(j);
             if (monthDays.contains(dateVal)) {
                 if (dateVal.equals(today)) {
-                    contentDate = Text.yellow(localDateToString(dateVal));
+                    contentDate = Text.yellow(jcalendar.localDateToString(dateVal));
                     tab[j/7*2][j%7] = "  " + contentDate + "  ";
                     activityNum = person.getRecordsNumber(dateVal);
                     if (activityNum != 0) {
@@ -139,7 +140,7 @@ public class ViewMonth{
                         tab[j/7*2+1][j%7] = contentInfo;
                     }
                 } else {
-                    contentDate = localDateToString(dateVal);
+                    contentDate = jcalendar.localDateToString(dateVal);
                     tab[j/7*2][j%7] = "  " + contentDate + "  ";
                     activityNum = person.getRecordsNumber(dateVal);
                     if (activityNum != 0) {
@@ -149,7 +150,7 @@ public class ViewMonth{
                 }
 
             } else {
-                contentDate = Text.white(localDateToString(dateVal));
+                contentDate = Text.white(jcalendar.localDateToString(dateVal));
                 tab[j/7*2][j%7] = "  " + contentDate + "  ";
             }
         }
@@ -158,32 +159,5 @@ public class ViewMonth{
                 .flatMap(Stream::of)
                 .toArray(String[]::new);
         System.out.printf(body.toString(), flatTab);
-    }
-
-    public static void main(String[] args) throws JcalendarException {
-        JcalendarModel testModel = new JcalendarModel();
-
-        testModel.addRecord(new Activity(Jcalendar.stringToLocalDate("30/12/2022"), Jcalendar.stringToLocalTime("09:00"), Jcalendar.stringToLocalTime("10:00"), "Python Course", "Technifutur", ActivityType.SEANCE));
-        testModel.addRecord(new Activity(Jcalendar.stringToLocalDate("30/12/2022"), Jcalendar.stringToLocalTime("10:30"), Jcalendar.stringToLocalTime("11:30"), "Java Course", "Technipaste", ActivityType.REPOS));
-        testModel.addRecord(new Activity(Jcalendar.stringToLocalDate("31/12/2022"), Jcalendar.stringToLocalTime("09:00"), Jcalendar.stringToLocalTime("10:00"), "HTML Course", "Technifutur", ActivityType.SEANCE));
-        testModel.addRecord(new Activity(Jcalendar.stringToLocalDate("31/12/2022"), Jcalendar.stringToLocalTime("10:30"), Jcalendar.stringToLocalTime("11:30"), "JavaScript Course", "Technifutur", ActivityType.SEANCE));
-        testModel.addRecord(new Activity(Jcalendar.stringToLocalDate("31/12/2022"), Jcalendar.stringToLocalTime("11:30"), Jcalendar.stringToLocalTime("12:30"), "Python Course", "Technipaste", ActivityType.REPOS));
-        testModel.addRecord(new Activity(Jcalendar.stringToLocalDate("02/01/2023"), Jcalendar.stringToLocalTime("09:00"), Jcalendar.stringToLocalTime("10:00"), "Java Course", "Technifutur", ActivityType.SEANCE));
-        testModel.addRecord(new Activity(Jcalendar.stringToLocalDate("02/01/2023"), Jcalendar.stringToLocalTime("14:00"), Jcalendar.stringToLocalTime("15:00"), "Computer Science Course", "Technifutur", ActivityType.SEANCE));
-        testModel.addRecord(new Activity(Jcalendar.stringToLocalDate("02/01/2023"), Jcalendar.stringToLocalTime("10:30"), Jcalendar.stringToLocalTime("11:30"), "JavaScript Course", "Technifutur", ActivityType.SEANCE));
-        testModel.addRecord(new Activity(Jcalendar.stringToLocalDate("03/01/2023"), Jcalendar.stringToLocalTime("09:30"), Jcalendar.stringToLocalTime("11:30"), "Java Course", "Technipaste", ActivityType.REPOS));
-        testModel.addRecord(new Activity(Jcalendar.stringToLocalDate("03/01/2023"), Jcalendar.stringToLocalTime("13:30"), Jcalendar.stringToLocalTime("15:30"), "Python Course", "Technipaste", ActivityType.REPOS));
-        testModel.addRecord(new Activity(Jcalendar.stringToLocalDate("03/01/2023"), Jcalendar.stringToLocalTime("15:30"), Jcalendar.stringToLocalTime("17:30"), "C++ Course", "Technipaste", ActivityType.REPOS));
-        testModel.addRecord(new Activity(Jcalendar.stringToLocalDate("04/01/2023"), Jcalendar.stringToLocalTime("09:00"), Jcalendar.stringToLocalTime("10:30"), ".Net Course", "Technipaste", ActivityType.REPOS));
-        testModel.addRecord(new Activity(Jcalendar.stringToLocalDate("04/01/2023"), Jcalendar.stringToLocalTime("10:30"), Jcalendar.stringToLocalTime("12:00"), "TypeScript course", "Technipaste", ActivityType.REPOS));
-        testModel.addRecord(new Activity(Jcalendar.stringToLocalDate("04/01/2023"), Jcalendar.stringToLocalTime("13:30"), Jcalendar.stringToLocalTime("14:30"), "JavaScript Course", "Technifutur", ActivityType.SEANCE));
-        testModel.addRecord(new Activity(Jcalendar.stringToLocalDate("04/01/2023"), Jcalendar.stringToLocalTime("14:30"), Jcalendar.stringToLocalTime("15:30"), "Java Course", "Technipaste", ActivityType.REPOS));
-        testModel.addRecord(new Activity(Jcalendar.stringToLocalDate("05/01/2023"), Jcalendar.stringToLocalTime("09:00"), Jcalendar.stringToLocalTime("10:30"), ".Net Course", "Technipaste", ActivityType.REPOS));
-        testModel.addRecord(new Activity(Jcalendar.stringToLocalDate("05/01/2023"), Jcalendar.stringToLocalTime("11:30"), Jcalendar.stringToLocalTime("12:00"), "TypeScript course", "Technipaste", ActivityType.REPOS));
-        testModel.addRecord(new Activity(Jcalendar.stringToLocalDate("05/01/2023"), Jcalendar.stringToLocalTime("13:30"), Jcalendar.stringToLocalTime("14:30"), "JavaScript Course", "Technifutur", ActivityType.SEANCE));
-        testModel.addRecord(new Activity(Jcalendar.stringToLocalDate("05/01/2023"), Jcalendar.stringToLocalTime("16:00"), Jcalendar.stringToLocalTime("17:30"), "Java Course", "Technipaste", ActivityType.REPOS));
-
-        ViewMonth m = new ViewMonth();
-        m.displayMonthSchedule(testModel, 0);
     }
 }
