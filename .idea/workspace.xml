@@ -5,10 +5,14 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="b46eaaae-bfa1-4ff2-9e96-029e6ce6ee0a" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/src/be/technifutur/jcalendar/Menu.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/be/technifutur/jcalendar/JcalendarController2.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/be/technifutur/jcalendar/controller/ControllerDay.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/be/technifutur/jcalendar/controller/ControllerMonth.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/be/technifutur/jcalendar/controller/ControllerWeek.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/checkpoint.ser" beforeDir="false" afterPath="$PROJECT_DIR$/checkpoint.ser" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/be/technifutur/jcalendar/JcalendarController.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/be/technifutur/jcalendar/JcalendarController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/be/technifutur/jcalendar/JcalendarController.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/be/technifutur/jcalendar/JcalendarController1.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/be/technifutur/jcalendar/Main.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/be/technifutur/jcalendar/Main.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -54,6 +58,9 @@
   <component name="RecentsManager">
     <key name="CopyFile.RECENT_KEYS">
       <recent name="C:\formation\Jcalendrier\src" />
+    </key>
+    <key name="MoveClassesOrPackagesDialog.RECENTS_KEY">
+      <recent name="be.technifutur.jcalendar" />
     </key>
     <key name="CopyClassDialog.RECENTS_KEY">
       <recent name="be.technifutur.jcalendar" />
@@ -154,7 +161,14 @@
       <option name="project" value="LOCAL" />
       <updated>1672872162174</updated>
     </task>
-    <option name="localTasksCounter" value="3" />
+    <task id="LOCAL-00003" summary="1.0.1&#10;+ Menu class&#10;+ executeRequestForDay/Week/Month">
+      <created>1673344417839</created>
+      <option name="number" value="00003" />
+      <option name="presentableId" value="LOCAL-00003" />
+      <option name="project" value="LOCAL" />
+      <updated>1673344417839</updated>
+    </task>
+    <option name="localTasksCounter" value="4" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
@@ -170,7 +184,8 @@
   </component>
   <component name="VcsManagerConfiguration">
     <MESSAGE value="phase 2:&#10;Model&#10;ViewWeek&#10;ViewMonth" />
-    <option name="LAST_COMMIT_MESSAGE" value="phase 2:&#10;Model&#10;ViewWeek&#10;ViewMonth" />
+    <MESSAGE value="1.0.1&#10;+ Menu class&#10;+ executeRequestForDay/Week/Month" />
+    <option name="LAST_COMMIT_MESSAGE" value="1.0.1&#10;+ Menu class&#10;+ executeRequestForDay/Week/Month" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
@@ -196,7 +211,7 @@
         </breakpoint>
         <line-breakpoint enabled="true" type="java-method">
           <url>file://$PROJECT_DIR$/src/be/technifutur/jcalendar/Main.java</url>
-          <line>11</line>
+          <line>7</line>
           <properties class="be.technifutur.jcalendar.Main" method="main">
             <option name="EMULATED" value="true" />
             <option name="WATCH_EXIT" value="false" />

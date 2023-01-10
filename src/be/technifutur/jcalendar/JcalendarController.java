@@ -3,6 +3,7 @@ package be.technifutur.jcalendar;
 import be.technifutur.jcalendar.day.ViewDay;
 import be.technifutur.jcalendar.month.ViewMonth;
 import be.technifutur.jcalendar.week.ViewWeek;
+
 import java.io.*;
 import java.time.LocalDate;
 import java.time.LocalTime;
@@ -19,13 +20,13 @@ public class JcalendarController {
     private int daysToMinusOrPlus;
     private int weeksToMinusOrPlus;
     private int monthsToMinusOrPlus;
+    Menu menu = new Menu();
     static List<Person> personList = new ArrayList<>();
     private final Input input = new ScannerInput();
     private String login = "admin";
     private Person personLogin;
     Jcalendar jcalendar = new Jcalendar();
     LocalDate today = jcalendar.today;
-    Menu menu = new Menu();
 
     public JcalendarController(JcalendarModel calendar) {
         this.calendar = calendar;
@@ -37,12 +38,13 @@ public class JcalendarController {
         welcomePage();
     }
 
+
     private void welcomePage() {
         daysToMinusOrPlus = 0;
         weeksToMinusOrPlus = 0;
         monthsToMinusOrPlus = 0;
         String request = "";
-        while (true) {
+        while (!request.equalsIgnoreCase("q")) {
             try {
                 request = listenRequestWelcomeMenu();
                 if (request.contains(",")) {
@@ -50,22 +52,25 @@ public class JcalendarController {
                     personLogin = getPerson(in[0], in[1]);
                     viewWeek.displayWeekSchedule(personLogin, weeksToMinusOrPlus);
                     listenRequestForWeekMainMenu(input.read(menu.mainMenuUser), true, false);
+                    request = "q";
                 }  else if (request.equalsIgnoreCase("admin")) {
                     viewWeek.displayWeekSchedule(calendar, monthsToMinusOrPlus);
+                    request = "q";
                     listenRequestForWeekMainMenu(input.read(menu.mainMenuAdmin), true, true);
+                    request = "q";
                 } else if (request.equalsIgnoreCase("n")) {
                     String[] userName = registerPerson(input.read(menu.addNewUserTips));
                     personLogin = getPerson(userName[0], userName[1]);
                     viewWeek.displayWeekSchedule(personLogin, weeksToMinusOrPlus);
                     listenRequestForWeekMainMenu(input.read(menu.mainMenuUser), true, false);
-                } else if (request.equalsIgnoreCase("q")) {
-                    serializer();
-                    System.exit(0);
+                    request = "q";
                 }
             } catch (IllegalArgumentException | JcalendarException e) {
                 System.out.println(e.getMessage());
             }
         }
+        serializer();
+        System.exit(0);
     }
 
     private String listenRequestWelcomeMenu() {
@@ -85,63 +90,52 @@ public class JcalendarController {
                 try {
                     if (request.equalsIgnoreCase("P")) {
                         daysToMinusOrPlus -= 1;
-                        executeRequestForDayMainMenu(isAdmin, mainMenu, false);
+                        request = executeRequestForDayMainMenu(isAdmin, mainMenu, false);
                     } else if (request.equalsIgnoreCase("S")) {
                         daysToMinusOrPlus += 1;
-                        executeRequestForDayMainMenu(isAdmin, mainMenu, false);
+                        request = executeRequestForDayMainMenu(isAdmin, mainMenu, false);
                     } else if (request.equalsIgnoreCase("Jo")) {
-                        executeRequestForDayMainMenu(isAdmin, mainMenu, true);
+                        request = executeRequestForDayMainMenu(isAdmin, mainMenu, true);
                     } else if (request.equalsIgnoreCase("Se")) {
                         LocalDate currentDay = calendar.minusOrPlusDays(daysToMinusOrPlus);
                         weeksToMinusOrPlus = (int)ChronoUnit.WEEKS.between(today, currentDay);
-                        executeRequestForWeekMainMenu(isAdmin, mainMenu, true);
+                        request = executeRequestForWeekMainMenu(isAdmin, mainMenu, true);
                     } else if (request.equalsIgnoreCase("Mo")) {
                         LocalDate currentDay = calendar.minusOrPlusDays(daysToMinusOrPlus);
                         monthsToMinusOrPlus = (int)ChronoUnit.MONTHS.between(today, currentDay);
-                        executeRequestForMonthMainMenu(isAdmin, mainMenu, true);
+                        request = executeRequestForMonthMainMenu(isAdmin, mainMenu, true);
                     } else if (request.equalsIgnoreCase("A")) {
                         addRecord(input.read(menu.addNewRecordTips), isAdmin);
                         serializer();
                         listenRequestForDayMainMenu(input.read(mainMenu), false, isAdmin);
+                        request = "q";
                     } else if (request.equalsIgnoreCase("D")) {
                         deleteRecord(input.read(menu.addNewRecordTips), isAdmin);
                         serializer();
                         listenRequestForDayMainMenu(input.read(mainMenu), false, isAdmin);
+                        request = "q";
                     } else if (request.equalsIgnoreCase("L")) {
                         printAllRecords(isAdmin);
                         listenRequestForDayMainMenu(input.read(mainMenu), false, isAdmin);
+                        request = "q";
                     } else if (request.equalsIgnoreCase("R")) {
                         findRecord(input.read(menu.searchRecordTips), isAdmin);
                         listenRequestForDayMainMenu(input.read(mainMenu), false, isAdmin);
+                        request = "q";
                     } else if (request.equalsIgnoreCase("C")) {
                         welcomePage();
+                        request = "q";
                     } else if (request.equalsIgnoreCase("q")) {
                         serializer();
                         System.exit(0);
                     }
-                    if (isAdmin) {
-                        if (request.equalsIgnoreCase("IMP")) {
-                            importData(input.read(menu.importDataTips));
-                        } else if (request.equalsIgnoreCase("EXP")) {
-                            exportData(input.read(menu.exportDataTips));
-                        } else if (request.equalsIgnoreCase("LU")) {
-                            printPersonRegistrated();
-                        }
-                    } else {
-                        if (request.equalsIgnoreCase("PR")) {
-                            printAllRecords(false);
-                            setPresencePage(input.read(menu.setPresenceTips));
-                            serializer();
-                        } else if (request.equalsIgnoreCase("V")) {
-                            printAllRecords(true);
-                        }
-                    }
+                    request = executeOptionalMenu(request, isAdmin);
                 } catch (IllegalArgumentException | JcalendarException | IOException e) {
                     System.out.println(e.getMessage());
                 }
             }
 
-            executeRequestForDayMainMenu(isAdmin, mainMenu, false);
+            request = executeRequestForDayMainMenu(isAdmin, mainMenu, false);
         }
     }
 
@@ -153,63 +147,52 @@ public class JcalendarController {
                 try {
                     if (request.equalsIgnoreCase("P")) {
                         weeksToMinusOrPlus -= 1;
-                        executeRequestForWeekMainMenu(isAdmin, mainMenu, false);
+                        request = executeRequestForWeekMainMenu(isAdmin, mainMenu, false);
                     } else if (request.equalsIgnoreCase("S")) {
                         weeksToMinusOrPlus += 1;
-                        executeRequestForWeekMainMenu(isAdmin, mainMenu, false);
+                        request = executeRequestForWeekMainMenu(isAdmin, mainMenu, false);
                     } else if (request.equalsIgnoreCase("Jo")) {
                         LocalDate currentDay = calendar.minusOrPlusWeeks(weeksToMinusOrPlus);
                         daysToMinusOrPlus = (int)ChronoUnit.DAYS.between(today, currentDay);
-                        executeRequestForDayMainMenu(isAdmin, mainMenu, true);
+                        request = executeRequestForDayMainMenu(isAdmin, mainMenu, true);
                     } else if (request.equalsIgnoreCase("Se")) {
-                        executeRequestForWeekMainMenu(isAdmin, mainMenu, true);
+                        request = executeRequestForWeekMainMenu(isAdmin, mainMenu, true);
                     } else if (request.equalsIgnoreCase("Mo")) {
                         LocalDate currentDay = calendar.minusOrPlusWeeks(weeksToMinusOrPlus);
                         monthsToMinusOrPlus = (int)ChronoUnit.MONTHS.between(today, currentDay);
-                        executeRequestForMonthMainMenu(isAdmin, mainMenu, true);
+                        request = executeRequestForMonthMainMenu(isAdmin, mainMenu, true);
                     } else if (request.equalsIgnoreCase("A")) {
                         addRecord(input.read(menu.addNewRecordTips), isAdmin);
                         serializer();
                         listenRequestForWeekMainMenu(input.read(mainMenu), false, isAdmin);
+                        request = "q";
                     } else if (request.equalsIgnoreCase("D")) {
                         deleteRecord(input.read(menu.addNewRecordTips), isAdmin);
                         serializer();
                         listenRequestForWeekMainMenu(input.read(mainMenu), false, isAdmin);
+                        request = "q";
                     } else if (request.equalsIgnoreCase("L")) {
                         printAllRecords(isAdmin);
                         listenRequestForWeekMainMenu(input.read(mainMenu), false, isAdmin);
+                        request = "q";
                     } else if (request.equalsIgnoreCase("R")) {
                         findRecord(input.read(menu.searchRecordTips), isAdmin);
                         listenRequestForWeekMainMenu(input.read(mainMenu), false, isAdmin);
+                        request = "q";
                     } else if (request.equalsIgnoreCase("C")) {
                         welcomePage();
+                        request = "q";
                     } else if (request.equalsIgnoreCase("q")) {
                         serializer();
                         System.exit(0);
                     }
-                    if (isAdmin) {
-                        if (request.equalsIgnoreCase("IMP")) {
-                            importData(input.read(menu.importDataTips));
-                        } else if (request.equalsIgnoreCase("EXP")) {
-                            exportData(input.read(menu.exportDataTips));
-                        } else if (request.equalsIgnoreCase("LU")) {
-                            printPersonRegistrated();
-                        }
-                    } else {
-                        if (request.equalsIgnoreCase("PR")) {
-                            printAllRecords(false);
-                            setPresencePage(input.read(menu.setPresenceTips));
-                            serializer();
-                        } else if (request.equalsIgnoreCase("V")) {
-                            printAllRecords(true);
-                        }
-                    }
+                    request = executeOptionalMenu(request, isAdmin);
                 } catch (IllegalArgumentException | JcalendarException | IOException e) {
                     System.out.println(e.getMessage());
                 }
             }
 
-            executeRequestForWeekMainMenu(isAdmin, mainMenu, false);
+            request = executeRequestForWeekMainMenu(isAdmin, mainMenu, false);
         }
     }
 
@@ -221,96 +204,158 @@ public class JcalendarController {
                 try {
                     if (request.equalsIgnoreCase("P")) {
                         monthsToMinusOrPlus -= 1;
-                        executeRequestForMonthMainMenu(isAdmin, mainMenu, false);
+                        request = executeRequestForMonthMainMenu(isAdmin, mainMenu, false);
                     } else if (request.equalsIgnoreCase("S")) {
                         monthsToMinusOrPlus += 1;
-                        executeRequestForMonthMainMenu(isAdmin, mainMenu, false);
+                        request = executeRequestForMonthMainMenu(isAdmin, mainMenu, false);
                     } else if (request.equalsIgnoreCase("Jo")) {
                         LocalDate currentDay = calendar.minusOrPlusMonths(monthsToMinusOrPlus);
                         daysToMinusOrPlus = (int)ChronoUnit.DAYS.between(today, currentDay);
-                        executeRequestForDayMainMenu(isAdmin, mainMenu, true);
+                        request = executeRequestForDayMainMenu(isAdmin, mainMenu, true);
                     } else if (request.equalsIgnoreCase("Se")) {
                         LocalDate currentDay = calendar.minusOrPlusMonths(monthsToMinusOrPlus);
                         weeksToMinusOrPlus = (int)ChronoUnit.WEEKS.between(today, currentDay);
-                        executeRequestForWeekMainMenu(isAdmin, mainMenu, true);
+                        request = executeRequestForWeekMainMenu(isAdmin, mainMenu, true);
                     } else if (request.equalsIgnoreCase("Mo")) {
-                        executeRequestForMonthMainMenu(isAdmin, mainMenu, true);
+                        request = executeRequestForMonthMainMenu(isAdmin, mainMenu, true);
                     } else if (request.equalsIgnoreCase("A")) {
                         addRecord(input.read(menu.addNewRecordTips), isAdmin);
                         serializer();
                         listenRequestForMonthMainMenu(input.read(mainMenu), false, isAdmin);
+                        request = "q";
                     } else if (request.equalsIgnoreCase("D")) {
                         deleteRecord(input.read(menu.addNewRecordTips), isAdmin);
                         serializer();
                         listenRequestForMonthMainMenu(input.read(mainMenu), false, isAdmin);
+                        request = "q";
                     } else if (request.equalsIgnoreCase("L")) {
                         printAllRecords(isAdmin);
                         listenRequestForMonthMainMenu(input.read(mainMenu), false, isAdmin);
+                        request = "q";
                     } else if (request.equalsIgnoreCase("R")) {
                         findRecord(input.read(menu.searchRecordTips), isAdmin);
                         listenRequestForMonthMainMenu(input.read(mainMenu), false, isAdmin);
+                        request = "q";
                     } else if (request.equalsIgnoreCase("C")) {
                         welcomePage();
                     } else if (request.equalsIgnoreCase("q")) {
                         serializer();
                         System.exit(0);
                     }
-                    if (isAdmin) {
-                        if (request.equalsIgnoreCase("IMP")) {
-                            importData(input.read(menu.importDataTips));
-                        } else if (request.equalsIgnoreCase("EXP")) {
-                            exportData(input.read(menu.exportDataTips));
-                        } else if (request.equalsIgnoreCase("LU")) {
-                            printPersonRegistrated();
-                        }
-                    } else {
-                        if (request.equalsIgnoreCase("PR")) {
-                            printAllRecords(false);
-                            setPresencePage(input.read(menu.setPresenceTips));
-                            serializer();
-                        } else if (request.equalsIgnoreCase("V")) {
-                            printAllRecords(true);
-                        }
-                    }
+                    request = executeOptionalMenu(request, isAdmin);
+
                 } catch (IllegalArgumentException | JcalendarException | IOException e) {
                     System.out.println(e.getMessage());
                 }
             }
 
-            if (isAdmin) {
-                viewMonth.displayMonthSchedule(calendar, monthsToMinusOrPlus);
-            } else {
-                viewMonth.displayMonthSchedule(calendar, monthsToMinusOrPlus);
-            }
-            listenRequestForMonthMainMenu(input.read(mainMenu), false, isAdmin);
+            request = executeRequestForMonthMainMenu(isAdmin, mainMenu, false);
         }
     }
 
-    private void executeRequestForDayMainMenu(boolean isAdmin, String mainMenu, boolean reset) throws JcalendarTimeConflictException {
+    private String executeRequestForDayMainMenu(boolean isAdmin, String mainMenu, boolean reset) throws JcalendarTimeConflictException {
         if (isAdmin) {
             viewDay.displayDaySchedule(calendar, daysToMinusOrPlus);
         } else {
             viewDay.displayDaySchedule(personLogin, daysToMinusOrPlus);
         }
         listenRequestForDayMainMenu(input.read(mainMenu), reset, isAdmin);
+        return "q";
     }
 
-    private void executeRequestForWeekMainMenu(boolean isAdmin, String mainMenu, boolean reset) throws JcalendarException {
+    private String executeRequestForWeekMainMenu(boolean isAdmin, String mainMenu, boolean reset) throws JcalendarException {
         if (isAdmin) {
             viewWeek.displayWeekSchedule(calendar, weeksToMinusOrPlus);
         } else {
             viewWeek.displayWeekSchedule(personLogin, weeksToMinusOrPlus);
         }
         listenRequestForWeekMainMenu(input.read(mainMenu), reset, isAdmin);
+        return "q";
     }
 
-    private void executeRequestForMonthMainMenu(boolean isAdmin, String mainMenu, boolean reset) throws JcalendarException {
+    private String executeRequestForMonthMainMenu(boolean isAdmin, String mainMenu, boolean reset) throws JcalendarException {
         if (isAdmin) {
             viewMonth.displayMonthSchedule(calendar, monthsToMinusOrPlus);
         } else {
             viewMonth.displayMonthSchedule(personLogin, monthsToMinusOrPlus);
         }
         listenRequestForMonthMainMenu(input.read(mainMenu), reset, isAdmin);
+        return "q";
+    }
+
+    private String executeOptionalMenu(String request, boolean isAdmin) throws JcalendarTimeConflictException, IOException {
+//        if (isAdmin) {
+//            if (request.equalsIgnoreCase("IMP")) {
+//                importData(input.read(menu.importDataTips));
+//            } else if (request.equalsIgnoreCase("EXP")) {
+//                exportData(input.read(menu.exportDataTips));
+//            } else if (request.equalsIgnoreCase("LU")) {
+//                printPersonRegistrated();
+//            }
+//        } else {
+//            if (request.equalsIgnoreCase("PR")) {
+//                printAllRecords(false);
+//                setPresencePage(input.read(menu.setPresenceTips));
+//                serializer();
+//            } else if (request.equalsIgnoreCase("V")) {
+//                printAllRecords(true);
+//            }
+//        }
+
+        Map<String,Runnable> command = new LinkedHashMap<>();
+
+        if (isAdmin) {
+            command.put("IMP", () -> {
+                try {
+                    importData(input.read(menu.importDataTips));
+                }
+                catch (JcalendarTimeConflictException e) {
+                    throw new RuntimeException(e);
+                }
+            });
+            command.put("EXP", () -> {
+                try {
+                    exportData(input.read(menu.exportDataTips));
+                }
+                catch (IOException e) {
+                    throw new RuntimeException(e);
+                }
+            });
+            command.put("LU", () -> {
+                try {
+                    printAllRecords(true);
+                }
+                catch (JcalendarTimeConflictException e) {
+                    throw new RuntimeException(e);
+                }
+            });
+        } else {
+            command.put("PR", () -> {
+                try {
+                    printAllRecords(false);
+                    setPresencePage(input.read(menu.setPresenceTips));
+                    serializer();
+                }
+                catch (JcalendarTimeConflictException e) {
+                    throw new RuntimeException(e);
+                }
+            });
+            command.put("V", () -> {
+                try {
+                    printAllRecords(false);
+                }
+                catch (JcalendarTimeConflictException e) {
+                    throw new RuntimeException(e);
+                }
+            });
+        }
+        try {
+            command.get(request.toUpperCase()).run();
+        }
+        catch (Exception e) {
+            ;
+        }
+        return "q";
     }
 
     private boolean isInputCorrect(Pattern pattern, String read) {
@@ -482,7 +527,7 @@ public class JcalendarController {
         System.out.printf(Text.green("%s utilisateur(s) trouvé(s) !\n\n"), personList.size());
     }
 
-    public void importData(String path) throws JcalendarTimeConflictException, IOException {
+    public void importData(String path) throws JcalendarTimeConflictException {
         String line = "";
         try {
             BufferedReader br = new BufferedReader(new FileReader(path));
